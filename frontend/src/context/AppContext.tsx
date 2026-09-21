@@ -78,7 +78,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [agents] = useState<Agent[]>(initialAgents);
-  const [followUps] = useState<FollowUp[]>(initialFollowUps);
+  const [followUps, setFollowUps] = useState<FollowUp[]>(initialFollowUps);
   const [selectedLeadId, setSelectedLeadId] = useState<string>('lead_rahul');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false);
@@ -102,25 +102,62 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setDashboardMetrics(data.metrics);
         
         // Map backend leads to frontend format
-        const mappedLeads = data.latestLeads.map((bl: any) => ({
-          id: bl.leadId,
-          name: bl.contactName,
-          phone: bl.contactNumber || 'N/A',
-          company: 'Unknown',
-          dealValue: bl.estimatedValue?.amount || 0,
-          dealValueFormatted: bl.estimatedValue?.displayValue || '₹0',
-          stage: 'New',
-          priority: bl.priority || 'Warm',
-          sentiment: 'Neutral',
-          score: bl.leadScore || 0,
-          lastMessage: bl.summary || 'No summary available',
-          lastMessageTime: bl.updatedAt ? new Date(bl.updatedAt).toLocaleTimeString() : 'Unknown',
-          unreadWhatsAppCount: 0,
-          assignedAgent: { name: 'AI Assistant', avatar: 'AI', id: 'ai' },
-          tags: [bl.intent, bl.category].filter(Boolean)
-        }));
+        const mappedLeads = data.latestLeads.map((bl: any) => {
+          let computedPriority = 'Cold';
+          if (bl.category === 'At Risk') {
+            computedPriority = 'At-Risk';
+          } else if (bl.leadScore >= 75) {
+            computedPriority = 'Hot';
+          } else if (bl.leadScore >= 50) {
+            computedPriority = 'Warm';
+          }
+
+          return {
+            id: bl.leadId,
+            name: bl.contactName,
+            phone: bl.contactNumber || 'N/A',
+            company: 'Unknown',
+            dealValue: bl.estimatedValue?.amount || 0,
+            dealValueFormatted: bl.estimatedValue?.displayValue || '₹0',
+            stage: 'New',
+            priority: computedPriority,
+            sentiment: 'Neutral',
+            score: bl.leadScore || 0,
+            lastMessage: bl.summary || 'No summary available',
+            lastMessageTime: bl.updatedAt ? new Date(bl.updatedAt).toLocaleTimeString() : 'Unknown',
+            unreadWhatsAppCount: 0,
+            assignedAgent: { name: 'AI Assistant', avatar: 'AI', id: 'ai' },
+            tags: [bl.intent, bl.category].filter(Boolean)
+          };
+        });
+        
+        
+        const mappedFollowUps = data.latestLeads
+          .filter((bl: any) => bl.followUpRequired && bl.followUpStatus !== 'Completed')
+          .map((bl: any, idx: number) => {
+            let status = 'Due Today';
+            if (bl.followUpStatus === 'Missed') status = 'Overdue';
+            if (bl.followUpStatus === 'Pending') status = 'Scheduled';
+
+            return {
+              id: 'fu_' + bl.leadId,
+              leadId: bl.leadId,
+              leadName: bl.contactName,
+              phone: bl.contactNumber || 'N/A',
+              dealValueFormatted: bl.estimatedValue?.displayValue || '₹0',
+              scheduledFor: 'Today',
+              timeSlot: 'ASAP',
+              status: status,
+              priority: bl.urgency === 'Critical' || bl.urgency === 'High' ? 'High' : (bl.category === 'At Risk' ? 'High' : 'Medium'),
+              aiSuggestedDraft: bl.recommendedAction || 'Please follow up regarding their recent inquiry.',
+              reason: bl.summary || 'Follow up required'
+            };
+          });
+          
+        setFollowUps(mappedFollowUps.length > 0 ? mappedFollowUps : initialFollowUps);
         
         if (mappedLeads.length > 0) {
+
           setLeads(mappedLeads);
         }
         setLastRefreshed(new Date());
