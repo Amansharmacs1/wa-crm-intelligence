@@ -75,12 +75,27 @@ export const LoginPage: React.FC = () => {
 
       // Attempt to send via EmailJS
       try {
+        const emailBody = `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Secure Login Request</h2>
+            <p>Hello,</p>
+            <p>Click the secure link below to log into your Wa-CRM Intelligence workspace:</p>
+            <p style="margin: 30px 0;">
+              <a href="${magicLink}" style="background-color: #101a35; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                Log In to Dashboard
+              </a>
+            </p>
+            <p style="font-size: 12px; color: #666;">If the button doesn't work, copy and paste this link into your browser:<br>${magicLink}</p>
+          </div>
+        `;
+
         await emailjs.send(
           SERVICE_ID,
           TEMPLATE_ID,
           {
             to_email: email,
-            magic_link: magicLink,
+            email_subject: 'Your Wa-CRM Secure Login Link',
+            email_body: emailBody,
           },
           PUBLIC_KEY
         );
