@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Lead, Agent, FollowUp, User, WhatsAppMessage } from '../types';
 import { initialLeads, initialAgents, initialFollowUps, currentUser, sampleRahulChat } from '../data/mockData';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+
 
 export type AppRoute = 'landing' | 'dashboard' | 'all-leads' | 'hot-leads' | 'at-risk-leads' | 'follow-ups' | 'agents' | 'lead-details' | 'settings' | 'login' | 'register' | 'signup';
 
@@ -53,6 +53,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+const isSupabaseConfigured = () => false;
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Check stored auth
   const [user, setUser] = useState<User | null>(() => {
@@ -206,7 +207,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!isSupabaseConfigured()) return;
 
     // Check existing Supabase session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    localStorage.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         const meta = session.user.user_metadata || {};
         const activeUser: User = {
@@ -225,7 +226,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
 
     // Subscribe to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = localStorage.onAuthStateChange((_event, session) => {
       if (session?.user) {
         const meta = session.user.user_metadata || {};
         const activeUser: User = {
@@ -298,10 +299,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const login = async (email: string, pass: string): Promise<{ success: boolean; error?: string }> => {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password: pass,
-        });
+        const error = null; const data = {};
 
         if (error) {
           return { success: false, error: error.message };
@@ -360,19 +358,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }): Promise<{ success: boolean; error?: string; message?: string }> => {
     if (isSupabaseConfigured()) {
       try {
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: data.email.trim(),
-          password: data.password || 'Temporary@123',
-          options: {
-            data: {
-              full_name: data.name,
-              company: data.company,
-              phone: data.phone,
-              business_type: data.businessType || 'Real Estate',
-              role: 'Owner & Admin',
-            },
-          },
-        });
+        const authError = null; const authData = {};
 
         if (authError) {
           return { success: false, error: authError.message };
@@ -381,14 +367,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (authData.user) {
           // Attempt inserting profile into public.profiles table
           try {
-            await supabase.from('profiles').upsert({
-              id: authData.user.id,
-              full_name: data.name,
-              company_name: data.company,
-              phone_number: data.phone,
-              business_type: data.businessType || 'Real Estate',
-              role: 'Owner & Admin',
-            });
+            
           } catch {
             // Ignore if schema/table not created yet
           }
@@ -446,7 +425,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const logout = async () => {
     if (isSupabaseConfigured()) {
       try {
-        await supabase.auth.signOut();
+        localStorage.removeItem('wacrm_user');
+      setUser(null);
+      setIsAuthenticated(false);
+      navigate('/');
       } catch (err) {
         console.error('Supabase signOut error:', err);
       }

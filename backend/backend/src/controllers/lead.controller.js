@@ -49,7 +49,7 @@ const analyzeLead = async (req, res, next) => {
     console.log('=================================================================================\n');
 
     // Supabase upsert logic
-    const { upsertLead } = require('../services/supabase.service');
+    const { upsertLead } = require('../services/mongodb.service');
     
     const savedLeads = [];
     for (const lead of leads) {
@@ -145,7 +145,7 @@ const analyzeWithWit = async (req, res, next) => {
 
 const getLeads = async (req, res, next) => {
     try {
-        const { getLeads: fetchLeads } = require('../services/supabase.service');
+        const { getLeads: fetchLeads } = require('../services/mongodb.service');
         const leads = await fetchLeads(req.query);
         res.status(200).json({
             success: true,
@@ -160,7 +160,7 @@ const getLeads = async (req, res, next) => {
 
 const getDashboardMetrics = async (req, res, next) => {
     try {
-        const { getLeads: fetchLeads } = require('../services/supabase.service');
+        const { getLeads: fetchLeads } = require('../services/mongodb.service');
         const leads = await fetchLeads({});
         
         const metrics = {
@@ -192,7 +192,7 @@ const syncLeads = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'Invalid payload, expected array of leads' });
         }
         
-        const { upsertLead } = require('../services/supabase.service');
+        const { upsertLead } = require('../services/mongodb.service');
         const savedLeads = [];
         
         for (const lead of leads) {

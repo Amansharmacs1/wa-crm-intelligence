@@ -6,20 +6,20 @@ export const Header: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
 
   const notifications = [
-    { title: "Rahul Mehta approved ₹12.5L budget", time: "10m ago", icon: "task_alt", color: "text-secondary" },
-    { title: "Rajesh Gopinath at-risk: Twilio review", time: "2h ago", icon: "warning", color: "text-error" },
-    { title: "Sneha Kapur requested 5-seat quote", time: "25m ago", icon: "payments", color: "text-secondary" }
+    { title: "Rahul Mehta approved ₹12.5L budget", time: "10m ago", icon: "check_circle", color: "text-apple-green" },
+    { title: "Rajesh Gopinath at-risk: Twilio review", time: "2h ago", icon: "warning", color: "text-apple-red" },
+    { title: "Sneha Kapur requested 5-seat quote", time: "25m ago", icon: "shopping_cart", color: "text-apple-blue" }
   ];
 
   return (
-    <header className="fixed top-0 left-60 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-margin border-b border-surface-container">
-      {/* Omnibar Search */}
-      <div className="flex items-center gap-space-md w-96">
-        <div className="flex items-center w-full bg-surface-container-low px-space-md py-space-xs rounded-lg text-on-surface-variant focus-within:ring-2 focus-within:ring-primary-container/20 transition-all">
-          <span className="material-symbols-outlined text-label-lg mr-space-sm text-on-surface-variant">search</span>
+    <header className="fixed top-0 left-[260px] right-0 h-16 glass z-40 flex items-center justify-between px-8">
+      {/* Search Bar */}
+      <div className="flex items-center w-[360px]">
+        <div className="flex items-center w-full bg-apple-hover/80 px-4 py-2 rounded-xl text-apple-text-secondary focus-within:ring-2 focus-within:ring-apple-blue/30 transition-all border border-apple-border/50">
+          <span className="material-symbols-outlined text-[18px] mr-2">search</span>
           <input
-            className="bg-transparent border-none outline-none font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant w-full"
-            placeholder="Search contacts, leads, conversations..."
+            className="bg-transparent border-none outline-none text-[14px] text-apple-text placeholder:text-apple-text-secondary w-full"
+            placeholder="Search leads, chats, contacts..."
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -27,51 +27,50 @@ export const Header: React.FC = () => {
           {searchQuery && (
             <button 
               onClick={() => setSearchQuery('')}
-              className="text-on-surface-variant hover:text-on-surface text-xs ml-1"
+              className="text-apple-text-secondary hover:text-apple-text ml-1"
             >
-              <span className="material-symbols-outlined text-body-sm">close</span>
+              <span className="material-symbols-outlined text-[16px]">close</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-space-lg">
-        {/* WhatsApp Web Sync Status Chip */}
-        <div className="hidden md:flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-secondary-container/30 text-on-secondary-container font-label-sm text-label-sm border border-secondary/20 shadow-sm">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+      <div className="flex items-center gap-6">
+        {/* Sync Status */}
+        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-apple-green/10 text-apple-green text-[12px] font-medium border border-apple-green/20">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-apple-green opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-apple-green"></span>
           </span>
-          <span className="font-medium">WhatsApp Web Sync: Active</span>
+          WhatsApp Sync: Live
         </div>
 
-        {/* Notifications Dropdown */}
+        {/* Notifications */}
         <div className="relative">
           <button
             onClick={() => setShowNotifications(!showNotifications)}
-            className="relative flex items-center text-on-surface-variant hover:text-on-surface cursor-pointer p-1.5 rounded-lg hover:bg-surface-container-low transition-colors"
-            title="Notifications"
+            className="relative flex items-center text-apple-text-secondary hover:text-apple-text cursor-pointer p-2 rounded-full hover:bg-apple-hover transition-colors"
           >
-            <span className="material-symbols-outlined text-headline-sm">notifications</span>
-            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-error text-on-error font-label-sm text-[10px] font-bold">
+            <span className="material-symbols-outlined text-[22px]">notifications</span>
+            <span className="absolute top-1.5 right-1.5 flex h-3 w-3 items-center justify-center rounded-full bg-apple-red text-white text-[9px] font-bold ring-2 ring-white">
               3
             </span>
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 bg-surface-container-lowest rounded-xl shadow-xl border border-surface-container py-2 z-50 animate-in fade-in slide-in-from-top-2">
-              <div className="px-4 py-2 border-b border-surface-container flex items-center justify-between">
-                <span className="font-label-lg text-label-lg text-on-surface">Live Alerts</span>
-                <span className="text-[11px] bg-secondary-container/40 text-on-secondary-container px-2 py-0.5 rounded-full font-medium">3 Unread</span>
+            <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-apple-hover border border-apple-border py-2 z-50">
+              <div className="px-4 py-2 border-b border-apple-border flex items-center justify-between">
+                <span className="text-[13px] font-semibold text-apple-text">Alerts</span>
+                <span className="text-[10px] bg-apple-blue/10 text-apple-blue px-2 py-0.5 rounded-full font-medium">3 New</span>
               </div>
-              <div className="divide-y divide-surface-container">
+              <div className="divide-y divide-apple-border/50">
                 {notifications.map((n, idx) => (
-                  <div key={idx} className="px-4 py-3 hover:bg-surface-container-low transition-colors cursor-pointer flex gap-3">
-                    <span className={`material-symbols-outlined text-xl ${n.color}`}>{n.icon}</span>
+                  <div key={idx} className="px-4 py-3 hover:bg-apple-hover transition-colors cursor-pointer flex gap-3">
+                    <span className={`material-symbols-outlined text-[18px] ${n.color}`}>{n.icon}</span>
                     <div className="flex flex-col flex-1">
-                      <span className="font-body-sm text-body-sm text-on-surface">{n.title}</span>
-                      <span className="font-label-sm text-[11px] text-on-surface-variant">{n.time}</span>
+                      <span className="text-[13px] font-medium text-apple-text">{n.title}</span>
+                      <span className="text-[11px] text-apple-text-secondary mt-0.5">{n.time}</span>
                     </div>
                   </div>
                 ))}
@@ -80,23 +79,15 @@ export const Header: React.FC = () => {
           )}
         </div>
 
-        {/* Add Lead Primary CTA */}
+        {/* Add Lead */}
         <button
           onClick={() => setIsAddLeadModalOpen(true)}
-          className="flex items-center gap-space-xs px-space-md py-space-xs rounded-lg bg-primary-container text-on-primary hover:bg-surface-container-highest hover:text-on-surface transition-colors font-label-md text-label-md shadow-sm"
+          className="apple-btn-primary flex items-center gap-1.5 text-[13px] !py-2 !px-4"
         >
-          <span className="material-symbols-outlined text-label-md">add</span>
-          <span>Add Lead</span>
+          <span className="material-symbols-outlined text-[16px]">add</span>
+          Add Lead
         </button>
 
-        {/* User Profile Avatar */}
-        <div 
-          onClick={() => navigate('settings')}
-          className="w-9 h-9 rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center font-label-lg text-label-lg font-semibold border-2 border-secondary-container cursor-pointer shadow-sm"
-          title={`${user?.name} (${user?.role})`}
-        >
-          {user?.avatar || 'AK'}
-        </div>
       </div>
     </header>
   );

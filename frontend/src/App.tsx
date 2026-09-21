@@ -45,17 +45,17 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-surface-container-low text-on-surface flex">
+    <div className="min-h-screen bg-apple-bg text-on-surface flex">
       {/* Fixed Left Navigation Sidebar */}
       <Sidebar />
 
       {/* Main Content Area Offset by Sidebar width */}
-      <div className="pl-60 w-full flex flex-col min-h-screen">
+      <div className="pl-[260px] w-full flex flex-col min-h-screen">
         {/* Fixed Top Bar */}
         <Header />
 
         {/* Dynamic Route View */}
-        <main className="relative pt-16 bg-surface-container-low min-h-screen w-full">
+        <main className="relative pt-16 bg-apple-bg min-h-screen w-full">
           {currentRoute === 'dashboard' && <DashboardPage />}
           {currentRoute === 'all-leads' && <LeadsPage />}
           {currentRoute === 'hot-leads' && <LeadsPage initialFilter="Hot" />}
