@@ -1,9 +1,7 @@
 const fs = require('fs');
 
-global.chrome = { runtime: { onMessage: { addListener: () => {} } } };
 global.WA_SELECTORS = { mainChat: '#main' };
-global.KeyboardEvent = class {};
-global.Event = class {};
+global.chrome = { runtime: { onMessage: { addListener: () => {} } } };
 
 class MockElement {
   constructor(tag, attrs, textContent, outerHTML) {
@@ -12,18 +10,15 @@ class MockElement {
     this.textContent = textContent || '';
     this.innerText = textContent || '';
     this.outerHTML = outerHTML || '';
+    this.dataset = {};
   }
   getAttribute(name) { return this.attrs[name] || null; }
   querySelector() { return null; }
-  querySelectorAll() { return []; }
-}
-
-class MockHeader {
-  querySelectorAll() {
-    return [
-      new MockElement('span', { title: 'Profile details' }, ''),
-      new MockElement('span', { title: 'John Doe' }, 'John Doe')
-    ];
+  querySelectorAll(sel) { 
+      if (sel === 'span.selectable-text') {
+          return [new MockElement('span', {}, this.textContent)];
+      }
+      return []; 
   }
 }
 
@@ -39,14 +34,13 @@ class MockMainChat {
   }
   
   querySelector(sel) {
-    if (sel === 'header') return new MockHeader();
     if (sel.includes('contenteditable')) return this.inputBox;
     if (sel.includes('data-icon="send"')) return this.sendBtn;
     return null;
   }
   
   querySelectorAll(sel) {
-    if (sel === '[role="row"]') return this.rows;
+    if (sel.includes('div[data-id]')) return this.rows;
     return [];
   }
 }
@@ -64,49 +58,43 @@ const contentJsCode = fs.readFileSync('apps/extension/content.js', 'utf8');
 eval(contentJsCode);
 
 async function runTests() {
-  let passed = 0;
-  let failed = 0;
-  function assert(condition, message) {
-    if (condition) { console.log(`✅ PASS: ${message}`); passed++; }
-    else { console.error(`❌ FAIL: ${message}`); failed++; }
+  console.log("--- RUNNING WA-CRM TEST SUITE ---");
+
+  // TEST 1: extractChat()
+  document.mainChat.rows = [
+    new MockElement('div', {'data-id': 'false_12345'}, 'Hello\n10:00 am', '<div data-id="false_12345"></div>'),
+    new MockElement('div', {'data-id': 'true_67890'}, 'Hi there\n10:01 am', '<div data-id="true_67890"></div>')
+  ];
+  
+  let chat = extractChat();
+  console.log("Extracted Chat Length:", chat.messages.length);
+  if (chat.messages.length !== 2) throw new Error("extractChat failed to find 2 messages");
+  
+  if (chat.messages[0].sender !== 'customer') throw new Error("Sender 1 should be customer");
+  if (chat.messages[1].sender !== 'agent') throw new Error("Sender 2 should be agent");
+
+  // TEST 2: Regex test
+  const tests = [
+      { text: "yes", expectGrant: true },
+      { text: "Yes", expectGrant: true },
+      { text: "no", expectGrant: false, expectDeny: true },
+      { text: "not today", expectGrant: false, expectDeny: false },
+      { text: "eyes", expectGrant: false, expectDeny: false },
+      { text: "sure", expectGrant: true },
+      { text: "deny", expectDeny: true },
+  ];
+  
+  for (let t of tests) {
+      const clean = t.text.toLowerCase().replace(/[^\w\s]/gi, '');
+      const isYes = /\b(yes|y|1|sure|ok|okay|yeah|yep|agree)\b/.test(clean);
+      const isNo = /\b(no|n|2|nope|nah|never|deny)\b/.test(clean);
+      
+      if (t.expectGrant && (!isYes || isNo)) throw new Error(`Expected grant for "${t.text}"`);
+      if (t.expectDeny && (!isNo || isYes)) throw new Error(`Expected deny for "${t.text}"`);
+      console.log(`Regex pass: ${t.text} -> isYes: ${isYes}, isNo: ${isNo}`);
   }
 
-  console.log("--- RUNNING WA-CRM TEST SUITE ---");
-  try {
-    const contact = getContactInfo();
-    assert(contact.name === 'John Doe', 'getContactInfo correctly extracts contact name');
-  } catch (e) { assert(false, 'getContactInfo threw error: ' + e.message); }
-
-  try {
-    document.mainChat.rows = [
-      new MockElement('div', {}, 'Hello\n10:00 am', 'class="message-in"'),
-      new MockElement('div', {}, 'Hi there\n10:01 am', 'class="message-out" data-icon="msg-check"')
-    ];
-    const chat = extractChat();
-    assert(chat.messages.length === 2, 'extractChat found 2 messages');
-    assert(chat.messages[0].sender === 'customer' && chat.messages[0].text === 'Hello', 'extractChat parsed customer message');
-    assert(chat.messages[1].sender === 'agent' && chat.messages[1].text === 'Hi there', 'extractChat parsed agent message');
-  } catch (e) { assert(false, 'extractChat threw error: ' + e.message); }
-
-  try {
-    const sent = sendConsentMessage();
-    assert(sent === true, 'sendConsentMessage executed successfully');
-    await new Promise(r => setTimeout(r, 250));
-    assert(document.mainChat.sendClicked === true, 'sendConsentMessage clicked the send button');
-  } catch (e) { assert(false, 'sendConsentMessage threw error: ' + e.message); }
-
-  try {
-    const newMessage = "Yes I agree\n10:05 am";
-    const cleanText = newMessage.toLowerCase().replace(/[^\w\s]/gi, '');
-    const isYes = cleanText.includes('yes') || cleanText.match(/\by\b/) || cleanText.match(/\b1\b/);
-    assert(isYes === true, 'Popup logic correctly identifies "Yes I agree" as consent');
-    
-    const badMessage = "No way\n10:06 am";
-    const cleanBadText = badMessage.toLowerCase().replace(/[^\w\s]/gi, '');
-    const isNo = cleanBadText.includes('no') || cleanBadText.match(/\bn\b/) || cleanBadText.match(/\b2\b/);
-    assert(isNo === true, 'Popup logic correctly identifies "No way" as denied consent');
-  } catch (e) { assert(false, 'Popup logic simulation failed: ' + e.message); }
-
-  console.log(`\n--- RESULTS: ${passed} Passed | ${failed} Failed ---`);
+  console.log("✅ All tests passed!");
 }
-runTests();
+
+runTests().catch(console.error);

@@ -2,9 +2,11 @@ const { z } = require('zod');
 
 const analyzeLeadSchema = z.object({
   consent: z.object({
-    granted: z.boolean(),
-    purpose: z.string(),
-    grantedAt: z.string(),
+    status: z.enum(['approved']),
+    method: z.string(),
+    requestedAt: z.string(),
+    respondedAt: z.string(),
+    response: z.string(),
     scope: z.string()
   }),
   conversation: z.object({
@@ -13,12 +15,12 @@ const analyzeLeadSchema = z.object({
     capturedAt: z.string().optional(),
     messages: z.array(
       z.object({
-        id: z.number().optional(),
+        id: z.string().optional(),
         sender: z.enum(['customer', 'agent']),
         text: z.string().min(1, 'Message text cannot be empty'),
         metadata: z.string().optional()
       })
-    ).min(1, 'At least one message is required')
+    ).optional() // can be empty or missing if there are no prior messages
   })
 });
 

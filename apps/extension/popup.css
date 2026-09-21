@@ -421,3 +421,27 @@ body {
 .privacy-notice {
   margin-top: 16px;
 }
+
+/* State Machine Styles */
+.status.idle .dot { background-color: #9CA3AF; }
+.status.waiting .dot { background-color: #F59E0B; }
+.status.approved .dot { background-color: #10B981; }
+.status.declined .dot { background-color: #EF4444; }
+.status.expired .dot { background-color: #6B7280; }
+.status.error .dot { background-color: #EF4444; }
+
+.state-panel {
+  text-align: center;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+.actions button {
+  flex: 1;
+}

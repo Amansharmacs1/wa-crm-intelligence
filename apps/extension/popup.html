@@ -9,60 +9,59 @@
 <body>
   <div class="header">
     <div class="logo">WA-CRM Intelligence</div>
-    <div id="status-indicator" class="status">
+    <div id="status-indicator" class="status idle">
       <span class="dot"></span>
-      <span class="status-text">Checking...</span>
+      <span class="status-text">Consent has not been requested</span>
     </div>
   </div>
 
   <div id="main-content" class="content">
-    <div id="contact-info" class="card hidden">
-      <div class="avatar" id="avatar-initials">--</div>
-      <div class="contact-details">
-        <h2 id="contact-name">Loading...</h2>
-        <p id="message-count">-- messages detected</p>
-      </div>
+
+    <div id="contact-info" class="card hidden" style="margin-bottom: 16px;">
+      <h2 id="contact-name" style="margin: 0; font-size: 16px; color: #17213C;">Loading...</h2>
     </div>
 
-    <div id="error-container" class="error hidden">
-      <p id="error-message"></p>
+    <div id="state-idle" class="state-panel hidden">
+      <button id="btn-request-consent" class="primary-btn">Request Chat Consent</button>
     </div>
 
-    <button id="extract-btn" class="primary-btn" disabled>Analyze This Lead</button>
-    
-    <div class="privacy-notice">
-      Your chat will only be accessed after you approve the analysis.
-    </div>
-  </div>
-
-  <!-- Consent Modal -->
-  <div id="consent-modal" class="modal-overlay hidden">
-    <div class="modal-content">
-      <div class="modal-icon">⚠️</div>
-      <h3>Privacy Check</h3>
-      <p>Before analyzing this lead, you must have the customer's permission to read this chat using AI.</p>
+    <div id="state-confirming" class="state-panel hidden">
+      <h3>Send consent request?</h3>
       <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 12px;">
-        1. The extension will automatically type and send this message to the customer:<br>
-        <code style="display:block; padding:8px; background:#f1f5f9; margin-top:4px; border-radius:4px; font-size:12px;">Hi! To serve you better, we use an AI assistant to analyze our chat. Do you consent to this? Reply Yes or No.</code>
+        Wa-CRM will send a consent message to the currently selected customer. No previous chat messages will be accessed until the customer replies YES.
       </p>
-      <p style="font-size: 13px; color: var(--color-text-secondary);">2. Once you click <strong>Wait for Reply</strong>, we will send the message and wait for them to answer.</p>
-      
-      <label class="checkbox-container" style="margin-top: 16px;">
-        <input type="checkbox" id="consent-checkbox">
-        <span class="checkmark"></span>
-        I understand and agree to request consent.
-      </label>
-      
-      <div class="modal-actions">
-        <button id="cancel-consent-btn" class="btn btn-secondary">Cancel</button>
-        <button id="allow-consent-btn" class="btn btn-primary" disabled>Wait for Reply</button>
+      <div class="actions">
+        <button id="btn-cancel-confirm" class="secondary-btn">Cancel</button>
+        <button id="btn-send-request" class="primary-btn">Send Request</button>
       </div>
     </div>
-  </div>
 
-  <div id="loading-container" class="content hidden loading-state">
-     <div class="spinner"></div>
-     <p id="loading-text">Analyzing conversation...</p>
+    <div id="state-waiting" class="state-panel hidden">
+      <p style="font-weight: 500;">Waiting for customer consent...</p>
+      <p class="meta" id="request-time" style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 12px;"></p>
+      <button id="btn-cancel-request" class="secondary-btn">Cancel Request</button>
+    </div>
+
+    <div id="state-approved" class="state-panel hidden">
+      <p style="font-weight: 600; color: #10B981; margin-bottom: 8px;">✓ Customer approved chat analysis</p>
+      <div class="spinner" style="margin: 10px auto; border-top-color: #10B981;"></div>
+      <p style="font-size: 13px;">Reading approved conversation...</p>
+    </div>
+
+    <div id="state-declined" class="state-panel hidden">
+      <p style="font-weight: 600; color: #EF4444; margin-bottom: 12px;">❌ Customer declined chat analysis</p>
+      <button id="btn-close-declined" class="secondary-btn">Close</button>
+    </div>
+
+    <div id="state-expired" class="state-panel hidden">
+      <p style="font-weight: 600; color: #6B7280; margin-bottom: 12px;">⏱ Consent request expired</p>
+      <button id="btn-request-again" class="primary-btn">Request Again</button>
+    </div>
+
+    <div id="state-error" class="state-panel hidden">
+      <p id="error-message" style="color: #EF4444; font-size: 13px; margin-bottom: 12px;"></p>
+      <button id="btn-error-reset" class="secondary-btn">Reset</button>
+    </div>
   </div>
 
   <div id="result-container" class="result hidden">
@@ -80,7 +79,6 @@
     
     <div class="result-body">
        <p class="summary" id="res-summary">Summary goes here.</p>
-       
        <div class="grid-stats">
           <div class="stat-box">
              <label>Intent</label>
@@ -95,20 +93,15 @@
              <span id="res-followup">--</span>
           </div>
        </div>
-
        <div class="action-box">
           <label>Recommended Action</label>
           <p id="res-action">Action goes here.</p>
        </div>
-
        <div class="reply-box">
           <label>Suggested Reply</label>
           <p id="res-reply">Reply goes here.</p>
-          <button id="copy-btn" class="copy-btn">Copy Suggested Reply</button>
-          <span id="copy-status" class="copy-status hidden">Reply copied!</span>
        </div>
     </div>
-
     <button id="back-btn" class="secondary-btn">Analyze Again</button>
   </div>
 

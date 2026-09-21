@@ -1,0 +1,90 @@
+[
+  {
+    "timestamp": "2026-09-21T17:22:34.384Z",
+    "contactName": "Akshat Chaudhary Cse",
+    "analysis": {
+      "contactName": "Akshat Chaudhary Cse",
+      "leadScore": 92,
+      "category": "At Risk",
+      "summary": "The customer has shown strong purchase intent and requires immediate follow-up.",
+      "intent": "Site Visit",
+      "sentiment": "Positive",
+      "followUpStatus": "Missed",
+      "estimatedValue": 8500000,
+      "buyingSignals": [
+        "Asked about pricing",
+        "Requested a site visit",
+        "Demonstrated purchase urgency"
+      ],
+      "recommendedAction": "Contact the customer immediately and confirm the site visit.",
+      "suggestedReply": "Hi Akshat, thank you for your interest. Your site visit can be scheduled this weekend. Please share your preferred time."
+    },
+    "messageCount": 1
+  },
+  {
+    "timestamp": "2026-09-21T17:41:42.514Z",
+    "contactName": "Akshat Chaudhary Cse",
+    "analysis": {
+      "contactName": "Akshat Chaudhary Cse",
+      "leadScore": 92,
+      "category": "At Risk",
+      "summary": "The customer has shown strong purchase intent and requires immediate follow-up.",
+      "intent": "Site Visit",
+      "sentiment": "Positive",
+      "followUpStatus": "Missed",
+      "estimatedValue": 8500000,
+      "buyingSignals": [
+        "Asked about pricing",
+        "Requested a site visit",
+        "Demonstrated purchase urgency"
+      ],
+      "recommendedAction": "Contact the customer immediately and confirm the site visit.",
+      "suggestedReply": "Hi Akshat, thank you for your interest. Your site visit can be scheduled this weekend. Please share your preferred time."
+    },
+    "messageCount": 1
+  },
+  {
+    "timestamp": "2026-09-21T17:43:19.233Z",
+    "contactName": "Ansh Goyal",
+    "analysis": {
+      "contactName": "Ansh Goyal",
+      "leadScore": 92,
+      "category": "At Risk",
+      "summary": "The customer has shown strong purchase intent and requires immediate follow-up.",
+      "intent": "Site Visit",
+      "sentiment": "Positive",
+      "followUpStatus": "Missed",
+      "estimatedValue": 8500000,
+      "buyingSignals": [
+        "Asked about pricing",
+        "Requested a site visit",
+        "Demonstrated purchase urgency"
+      ],
+      "recommendedAction": "Contact the customer immediately and confirm the site visit.",
+      "suggestedReply": "Hi Ansh, thank you for your interest. Your site visit can be scheduled this weekend. Please share your preferred time."
+    },
+    "messageCount": 3
+  },
+  {
+    "timestamp": "2026-09-21T17:45:00.375Z",
+    "contactName": "+91 98824 36008",
+    "analysis": {
+      "contactName": "+91 98824 36008",
+      "leadScore": 92,
+      "category": "At Risk",
+      "summary": "The customer has shown strong purchase intent and requires immediate follow-up.",
+      "intent": "Site Visit",
+      "sentiment": "Positive",
+      "followUpStatus": "Missed",
+      "estimatedValue": 8500000,
+      "buyingSignals": [
+        "Asked about pricing",
+        "Requested a site visit",
+        "Demonstrated purchase urgency"
+      ],
+      "recommendedAction": "Contact the customer immediately and confirm the site visit.",
+      "suggestedReply": "Hi +91, thank you for your interest. Your site visit can be scheduled this weekend. Please share your preferred time."
+    },
+    "messageCount": 3
+  }
+]
