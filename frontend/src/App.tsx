@@ -16,25 +16,32 @@ import { AgentsPage } from './pages/AgentsPage';
 import { SettingsPage } from './pages/SettingsPage';
 
 const AppContent: React.FC = () => {
-  const { currentRoute, isAuthenticated } = useApp();
+  const { currentRoute, isAuthenticated, navigate } = useApp();
 
-  // Route to landing page
-  if (currentRoute === 'landing') {
-    return <LandingPage />;
-  }
+  // If user is ALREADY authenticated and tries to access public pages, send them to dashboard
+  React.useEffect(() => {
+    if (isAuthenticated && ['landing', 'login', 'signup', 'register'].includes(currentRoute)) {
+      // Force URL change and state update
+      window.history.replaceState({}, '', '/dashboard');
+      navigate('dashboard');
+    }
+  }, [isAuthenticated, currentRoute, navigate]);
 
-  // If user is accessing login or signup/register directly
-  if (currentRoute === 'login') {
-    return <LoginPage />;
-  }
-
-  if (currentRoute === 'signup' || currentRoute === 'register') {
-    return <SignupPage />;
-  }
-
-  // If not authenticated, default to LoginPage
+  // If user is accessing login or signup/register directly (and is not authenticated)
   if (!isAuthenticated) {
+    if (currentRoute === 'landing') {
+      return <LandingPage />;
+    }
+    if (currentRoute === 'signup' || currentRoute === 'register') {
+      return <SignupPage />;
+    }
+    // Any other route while logged out forces them to the Login page
     return <LoginPage />;
+  }
+
+  // If they are authenticated, but somehow the route is still public (before the useEffect kicks in), render nothing or a spinner
+  if (['landing', 'login', 'signup', 'register'].includes(currentRoute)) {
+    return null;
   }
 
   return (
