@@ -39,8 +39,9 @@ const requireConsent = (req, res, next) => {
 
   if (!hasValidConsent) {
     return res.status(403).json({
-      success: false,
-      message: 'Approved customer consent is required before processing chat data.'
+      analysisAllowed: false,
+      reason: 'Explicit customer consent is required before AI analysis.',
+      requiredAction: 'Request a clear YES or NO response.'
     });
   }
 

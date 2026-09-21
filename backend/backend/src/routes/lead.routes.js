@@ -7,7 +7,8 @@ const {
   analyzeWithLlama,
   analyzeWithWit,
   getLeads,
-  getDashboardMetrics
+  getDashboardMetrics,
+  syncLeads
 } = require('../controllers/lead.controller');
 const { analyzeLeadSchema } = require('../schemas/lead.schema');
 const { validate } = require('../middleware/validate.middleware');
@@ -21,6 +22,7 @@ router.get('/dashboard', getDashboardMetrics);
 router.post('/analyze', requireConsent, validate(analyzeLeadSchema), analyzeLead);
 router.post('/transform', requireConsent, validate(analyzeLeadSchema), transformLeads);
 router.post('/hybrid', requireConsent, validate(analyzeLeadSchema), analyzeLead);
+router.post('/sync', syncLeads);
 
 // Modular individual endpoints
 router.post('/gemini', requireConsent, validate(analyzeLeadSchema), analyzeWithGemini);

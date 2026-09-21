@@ -48,6 +48,7 @@ interface AppContextType {
   isFetching: boolean;
   lastRefreshed: Date | null;
   fetchDashboardData: () => Promise<void>;
+  syncLocalData: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -484,7 +485,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         dashboardMetrics,
         isFetching,
         lastRefreshed,
-        fetchDashboardData
+        fetchDashboardData,
+        syncLocalData
       }}
     >
       {children}

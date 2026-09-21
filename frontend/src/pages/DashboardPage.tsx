@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 const DASHBOARD_REFRESH_INTERVAL_MS = Number(import.meta.env.VITE_REFRESH_INTERVAL) || 60 * 60 * 1000;
 
 export const DashboardPage: React.FC = () => {
-  const { leads, navigate, setActiveChatLead, showNotification, fetchDashboardData, isFetching, lastRefreshed, dashboardMetrics } = useApp();
+  const { leads, navigate, setActiveChatLead, showNotification, fetchDashboardData, syncLocalData, isFetching, lastRefreshed, dashboardMetrics } = useApp();
   const [filter, setFilter] = useState<'all' | 'hot' | 'at-risk'>('all');
   const [timeframe, setTimeframe] = useState<'weekly' | 'monthly'>('weekly');
 
@@ -61,6 +61,17 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-space-sm">
+          {/* Sync Local Data Button */}
+          <button
+            onClick={() => syncLocalData()}
+            className="flex items-center gap-space-xs px-space-md py-space-xs bg-secondary text-on-secondary hover:opacity-90 transition-all duration-200 rounded-lg shadow-sm font-label-md text-label-md mr-2"
+          >
+            <span className="material-symbols-outlined text-label-lg">
+              cloud_upload
+            </span>
+            <span>Instant Data Upload</span>
+          </button>
+
           {/* Fetch Latest Data Button */}
           <button
             onClick={() => fetchDashboardData()}
