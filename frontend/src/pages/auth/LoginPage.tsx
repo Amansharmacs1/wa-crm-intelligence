@@ -11,7 +11,7 @@ export const LoginPage: React.FC = () => {
 
   // EmailJS Configuration - ensure these are set in your environment
   const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'default_service';
-  const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'default_template';
+  const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_VERIFY_TEMPLATE_ID || 'default_template';
   const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'default_key';
 
   useEffect(() => {
