@@ -15,7 +15,7 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') }
 process.env.BENCHMARK_SILENT = 'true';
 
 const assert = require('assert');
-const { transformSingleConversation } = require('../src/services/leadTransformation.service');
+const { transformSingleConversation } = require('../../model/leadTransformation.service');
 const { leadObjectSchema } = require('../src/schemas/leadObject.schema');
 
 // Generates 500 diverse, realistic WhatsApp conversations across multiple industries

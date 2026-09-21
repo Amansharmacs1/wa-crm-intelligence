@@ -13,7 +13,7 @@
 
 require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const assert = require('assert');
-const { transformSingleConversation } = require('../src/services/leadTransformation.service');
+const { transformSingleConversation } = require('../../model/leadTransformation.service');
 const { leadObjectSchema } = require('../src/schemas/leadObject.schema');
 
 // Generator for 100 realistic, diverse WhatsApp conversations
