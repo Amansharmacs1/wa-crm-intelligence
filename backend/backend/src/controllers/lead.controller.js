@@ -1,3 +1,4 @@
+const { appendAndMergeMessages } = require('../services/chatStorage.service');
 const fs = require('fs');
 const path = require('path');
 const { generateMockAnalysis } = require('../../../model/mockAnalysis.service');
@@ -30,6 +31,15 @@ const analyzeLead = async (req, res, next) => {
     }
 
     // Process with the real AI pipeline
+    
+    // Aggregation Feature: Save and aggregate full chat history
+    if (conversation && conversation.contactName && conversation.messages) {
+      const mergedMessages = appendAndMergeMessages(conversation.contactName, conversation.messages);
+      // Replace the incoming payload messages with the full history
+      req.body.conversation.messages = mergedMessages;
+      console.log(`[ChatStorage] Merged new messages for ${conversation.contactName}. Total historical messages: ${mergedMessages.length}`);
+    }
+
     const leads = await transformConversations(req.body);
 
     console.log(`\n=== Transformed WhatsApp Conversations into ${leads.length} Structured Lead(s) ===`);
