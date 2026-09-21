@@ -6,8 +6,8 @@ const WA_SELECTORS = {
   // Header section where the contact name is displayed
   headerTitle: 'header [title], header span[dir="auto"]',
   
-  // Message rows container
-  messageRow: '[role="row"]',
+  // Message rows container - deeply robust
+  messageRow: '[role="row"], div.message-in, div.message-out, div[data-id]',
   
   // The message text element
   messageText: 'span.selectable-text span',
