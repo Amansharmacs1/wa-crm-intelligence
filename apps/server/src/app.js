@@ -36,6 +36,7 @@ app.get('/api/health', (req, res) => {
 
 // API Routes
 app.use('/api/leads', leadRoutes);
+app.use('/api/ai', leadRoutes);
 
 // Error handling
 app.use(notFoundHandler);
