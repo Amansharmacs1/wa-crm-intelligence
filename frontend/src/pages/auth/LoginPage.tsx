@@ -75,12 +75,38 @@ export const LoginPage: React.FC = () => {
 
       // Attempt to send via EmailJS
       try {
+        const emailBody = `
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background-color: #ffffff; border: 1px solid #eaeaea; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+  <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #f3f4f6;">
+    <h1 style="color: #101a35; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">WA-CRM <span style="color: #4f46e5;">Intelligence</span></h1>
+  </div>
+  <div style="color: #374151; font-size: 16px; line-height: 1.6;">
+    <p style="margin-top: 0;">Hello,</p>
+    <p>You recently requested a secure login link for your WA-CRM Intelligence workspace. Please click the button below to instantly authenticate your session:</p>
+    <div style="text-align: center; margin: 40px 0;">
+      <a href="${magicLink}" style="background-color: #101a35; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 2px 4px rgba(16, 26, 53, 0.3);">
+        Log In to Dashboard
+      </a>
+    </div>
+    <p style="font-size: 14px; color: #6b7280; margin-bottom: 0;">
+      <strong>Note:</strong> This secure link will expire soon and can only be used once. If you did not request this login attempt, please ignore this email; your account remains secure.
+    </p>
+    <hr style="border: none; border-top: 1px solid #eaeaea; margin: 30px 0;">
+    <p style="font-size: 12px; color: #9ca3af; text-align: center; margin-bottom: 0;">
+      If the button above doesn't work, copy and paste the following URL into your web browser:<br>
+      <a href="${magicLink}" style="color: #4f46e5; word-break: break-all; margin-top: 8px; display: block;">${magicLink}</a>
+    </p>
+  </div>
+</div>
+        `;
+
         await emailjs.send(
           SERVICE_ID,
           TEMPLATE_ID,
           {
             to_email: email,
-            magic_link: magicLink,
+            email_subject: 'Your Secure Login Link - WA-CRM Intelligence',
+            email_body: emailBody,
           },
           PUBLIC_KEY
         );
