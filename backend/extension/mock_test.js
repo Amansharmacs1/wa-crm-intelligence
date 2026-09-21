@@ -55,7 +55,7 @@ global.document = new MockDocument();
 global.MutationObserver = class { observe(){} disconnect(){} };
 global.Event = class {};
 
-const contentCode = fs.readFileSync('apps/extension/content.js', 'utf8').replace(/const WA_SELECTORS = \{[\s\S]*?\};/, '');
+const contentCode = fs.readFileSync('backend/extension/content.js', 'utf8').replace(/const WA_SELECTORS = \{[\s\S]*?\};/, '');
 const WA_SELECTORS = { mainChat: '#main', headerTitle: 'header [title], header span[dir="auto"], header [title]', messageRow: '[role="row"], div.message-in, div.message-out, div[data-id]' };
 global.WA_SELECTORS = WA_SELECTORS;
 eval(contentCode);

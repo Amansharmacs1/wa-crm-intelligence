@@ -277,10 +277,10 @@ Please reply YES to allow analysis of this conversation, or NO to decline. You c
       document.getElementById('res-category').textContent = lead.category;
       document.getElementById('res-summary').textContent = lead.summary;
       document.getElementById('res-intent').textContent = lead.intent;
-      document.getElementById('res-sentiment').textContent = lead.sentiment;
+      document.getElementById('res-sentiment').textContent = lead.sentiment || (lead.leadScore >= 50 ? 'Positive' : 'Neutral');
       document.getElementById('res-followup').textContent = lead.followUpStatus;
       document.getElementById('res-action').textContent = lead.recommendedAction;
-      document.getElementById('res-reply').textContent = lead.suggestedReply;
+      document.getElementById('res-reply').textContent = lead.suggestedReply || lead.recommendedAction;
   }
 
   // Poll storage for updates (since content.js writes to it)

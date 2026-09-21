@@ -54,11 +54,11 @@ global.chrome = {
 };
 
 // Load selectors
-const selectorsCode = fs.readFileSync('apps/extension/selectors.js', 'utf8');
+const selectorsCode = fs.readFileSync('backend/extension/selectors.js', 'utf8');
 eval(selectorsCode);
 
 // Load content script
-const contentCode = fs.readFileSync('apps/extension/content.js', 'utf8');
+const contentCode = fs.readFileSync('backend/extension/content.js', 'utf8');
 eval(contentCode);
 
 async function runTest() {

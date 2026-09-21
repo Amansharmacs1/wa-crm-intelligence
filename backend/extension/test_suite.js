@@ -54,7 +54,7 @@ global.document = {
   execCommand: () => {}
 };
 
-const contentJsCode = fs.readFileSync('apps/extension/content.js', 'utf8');
+const contentJsCode = fs.readFileSync('backend/extension/content.js', 'utf8');
 eval(contentJsCode);
 
 async function runTests() {

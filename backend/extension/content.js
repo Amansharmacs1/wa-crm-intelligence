@@ -59,7 +59,7 @@ function sendConsentMessage(text) {
   const main = document.querySelector(WA_SELECTORS.mainChat);
   if (!main) throw new Error('No active chat found');
   
-  const input = main.querySelector('div[contenteditable="true"][title*="Type a message"], div[contenteditable="true"][data-tab="10"]');
+  const input = main.querySelector('div[contenteditable="true"][title*="Type a message"], div[contenteditable="true"][data-tab="10"], footer div[contenteditable="true"], div[aria-placeholder="Type a message"]');
   if (!input) throw new Error('Cannot request consent: This chat is read-only or input box not found.');
 
   input.focus();
