@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wa-CRM Intelligence</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <div class="logo">WA-CRM Intelligence</div>
+    <div id="status-indicator" class="status">
+      <span class="dot"></span>
+      <span class="status-text">Checking...</span>
+    </div>
+  </div>
+
+  <div id="main-content" class="content">
+    <div id="contact-info" class="card hidden">
+      <div class="avatar" id="avatar-initials">--</div>
+      <div class="contact-details">
+        <h2 id="contact-name">Loading...</h2>
+        <p id="message-count">-- messages detected</p>
+      </div>
+    </div>
+
+    <div id="error-container" class="error hidden">
+      <p id="error-message"></p>
+    </div>
+
+    <div class="privacy-notice">
+      🔒 Only reads this active conversation. No data is stored or sent.
+    </div>
+
+    <button id="extract-btn" class="primary-btn" disabled>Detect Conversation</button>
+  </div>
+
+  <div id="result-container" class="result hidden">
+    <h3>Extracted Data (Preview)</h3>
+    <pre id="json-preview"></pre>
+    <button id="back-btn" class="secondary-btn">Back</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

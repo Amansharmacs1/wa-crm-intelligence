@@ -1,0 +1,9 @@
+{
+  "name": "wa-crm-intelligence",
+  "version": "1.0.0",
+  "description": "AI-powered revenue intelligence platform for WhatsApp",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ]
+}
