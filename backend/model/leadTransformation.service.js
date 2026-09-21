@@ -5,7 +5,7 @@
  */
 
 const { evaluateConversationWithGemini } = require('./gemini.service');
-const { leadObjectSchema } = require('../schemas/leadObject.schema');
+const { leadObjectSchema } = require('../backend/src/schemas/leadObject.schema');
 
 // In-memory daily counter to guarantee unique sequence numbers for lead IDs: LEAD-YYYYMMDD-XXX
 const dailyCounters = new Map();

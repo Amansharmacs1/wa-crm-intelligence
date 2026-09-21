@@ -18,7 +18,6 @@ const conversationItemSchema = z.object({
 
 const analyzeLeadSchema = z.object({
   consent: z.object({
-  consent: z.object({
     status: z.enum(['approved']).optional(),
     granted: z.boolean().optional(),
     purpose: z.string().optional(),

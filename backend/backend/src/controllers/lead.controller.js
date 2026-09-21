@@ -1,10 +1,10 @@
 const fs = require('fs');
 const path = require('path');
-const { generateMockAnalysis } = require('../services/mockAnalysis.service');
-const { transformConversations } = require('../services/leadTransformation.service');
-const { evaluateConversationWithGemini } = require('../services/gemini.service');
-const { evaluateSalesConversation } = require('../services/groqLlama.service');
-const { analyzeConversationMessages } = require('../services/witAi.service');
+const { generateMockAnalysis } = require('../../../model/mockAnalysis.service');
+const { transformConversations } = require('../../../model/leadTransformation.service');
+const { evaluateConversationWithGemini } = require('../../../model/gemini.service');
+const { evaluateSalesConversation } = require('../../../model/groqLlama.service');
+const { analyzeConversationMessages } = require('../../../model/witAi.service');
 
 /**
  * Main Lead Analysis & Transformation Endpoint
