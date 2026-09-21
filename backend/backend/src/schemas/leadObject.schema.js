@@ -29,6 +29,7 @@ const leadObjectSchema = z.object({
   language: z.enum(['Hindi', 'English', 'Hinglish', 'Other']),
   urgency: z.enum(['Low', 'Medium', 'High', 'Critical']),
   urgencyReason: z.string(),
+  priority: z.enum(['Hot', 'Warm', 'Cold', 'At-Risk']),
   followUpRequired: z.boolean(),
   followUpStatus: z.enum(['Not Required', 'Pending', 'Due', 'Missed', 'Completed']),
   category: z.enum(['Safe', 'At Risk']),

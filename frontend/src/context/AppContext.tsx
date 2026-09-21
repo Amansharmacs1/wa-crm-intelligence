@@ -109,7 +109,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           dealValue: bl.estimatedValue?.amount || 0,
           dealValueFormatted: bl.estimatedValue?.displayValue || '₹0',
           stage: 'New',
-          priority: bl.urgency === 'Critical' || bl.urgency === 'High' ? 'Hot' : (bl.category === 'At Risk' ? 'At-Risk' : 'Warm'),
+          priority: bl.priority || 'Warm',
           sentiment: 'Neutral',
           score: bl.leadScore || 0,
           lastMessage: bl.summary || 'No summary available',

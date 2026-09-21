@@ -17,8 +17,9 @@ const analyzeLead = async (req, res, next) => {
     // Strict consent check from HEAD
     if (!consent || consent.status !== 'approved') {
         return res.status(403).json({
-            success: false,
-            message: "Approved customer consent is required before chat analysis."
+            analysisAllowed: false,
+            reason: "Explicit customer consent is required before AI analysis.",
+            requiredAction: "Request a clear YES or NO response."
         });
     }
 

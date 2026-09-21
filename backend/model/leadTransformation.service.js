@@ -454,6 +454,8 @@ MANDATORY ENUMS (YOU MUST USE ONLY ONE OF THESE EXACT STRINGS):
   * Note: Use "Hinglish" when Hindi and English are mixed in Roman script. Use "Hindi" for Devanagari script.
 - "urgency": "Low" | "Medium" | "High" | "Critical"
 - "urgencyReason": string explaining the urgency context or timeline driver.
+- "priority": "Hot" | "Warm" | "Cold" | "At-Risk"
+  * Note: Use "At-Risk" if they are highly likely to drop off. Use "Hot" for immediate intent. Use "Warm" for interested. Use "Cold" for unengaged.
 - "followUpRequired": boolean (true/false)
 - "followUpStatus": "Not Required" | "Pending" | "Due" | "Missed" | "Completed"
   * Note: Use "Missed" when customer showed meaningful intent but agent failed to respond appropriately.

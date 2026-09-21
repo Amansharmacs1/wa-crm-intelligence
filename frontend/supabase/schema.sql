@@ -67,6 +67,7 @@ create table if not exists public.leads (
   "language" text,
   "urgency" text,
   "urgencyReason" text,
+  "priority" text,
   "followUpRequired" boolean,
   "followUpStatus" text,
   "category" text,
