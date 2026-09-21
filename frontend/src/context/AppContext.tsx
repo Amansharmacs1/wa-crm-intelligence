@@ -40,8 +40,14 @@ interface AppContextType {
   sendChatMessage: (text: string) => void;
 
   // Toast / Notification
-  notification: string | null;
-  showNotification: (msg: string) => void;
+  notification: { message: string; type: 'success' | 'error' | 'info' } | null;
+  showNotification: (msg: string, type?: 'success' | 'error' | 'info') => void;
+
+  // Dashboard Fetching
+  dashboardMetrics: any;
+  isFetching: boolean;
+  lastRefreshed: Date | null;
+  fetchDashboardData: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -76,8 +82,58 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false);
   const [activeChatLead, setActiveChatLead] = useState<Lead | null>(null);
-  const [chatMessages, setChatMessages] = useState<WhatsAppMessage[]>(sampleRahulChat);
-  const [notification, setNotification] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<WhatsAppMessage[]>([]);
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+
+  const [dashboardMetrics, setDashboardMetrics] = useState<any>(null);
+  const [isFetching, setIsFetching] = useState(false);
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
+
+  const fetchDashboardData = async () => {
+    setIsFetching(true);
+    try {
+      // Use proxy or direct backend URL
+      const apiUrl = 'http://localhost:5050/api/leads/dashboard';
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      
+      if (data.success) {
+        setDashboardMetrics(data.metrics);
+        
+        // Map backend leads to frontend format
+        const mappedLeads = data.latestLeads.map((bl: any) => ({
+          id: bl.leadId,
+          name: bl.contactName,
+          phone: bl.contactNumber || 'N/A',
+          company: 'Unknown',
+          dealValue: bl.estimatedValue?.amount || 0,
+          dealValueFormatted: bl.estimatedValue?.displayValue || '₹0',
+          stage: 'New',
+          priority: bl.urgency === 'Critical' || bl.urgency === 'High' ? 'Hot' : (bl.category === 'At Risk' ? 'At-Risk' : 'Warm'),
+          sentiment: 'Neutral',
+          score: bl.leadScore || 0,
+          lastMessage: bl.summary || 'No summary available',
+          lastMessageTime: bl.updatedAt ? new Date(bl.updatedAt).toLocaleTimeString() : 'Unknown',
+          unreadWhatsAppCount: 0,
+          assignedAgent: { name: 'AI Assistant', avatar: 'AI', id: 'ai' },
+          tags: [bl.intent, bl.category].filter(Boolean)
+        }));
+        
+        if (mappedLeads.length > 0) {
+          setLeads(mappedLeads);
+        }
+        setLastRefreshed(new Date());
+        showNotification('Dashboard data updated successfully!', 'success');
+      } else {
+        throw new Error(data.message || 'Failed to fetch');
+      }
+    } catch (err: any) {
+      console.error('Failed to fetch dashboard data:', err);
+      showNotification(`Failed to fetch latest data: ${err.message}`, 'error');
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   // Sync Supabase Auth Session
   useEffect(() => {
@@ -154,10 +210,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const showNotification = (msg: string) => {
-    setNotification(msg);
+  const showNotification = (msg: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setNotification({ message: msg, type });
     setTimeout(() => {
-      setNotification(prev => (prev === msg ? null : prev));
+      setNotification(prev => (prev?.message === msg ? null : prev));
     }, 4000);
   };
 
@@ -424,7 +480,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         chatMessages,
         sendChatMessage,
         notification,
-        showNotification
+        showNotification,
+        dashboardMetrics,
+        isFetching,
+        lastRefreshed,
+        fetchDashboardData
       }}
     >
       {children}

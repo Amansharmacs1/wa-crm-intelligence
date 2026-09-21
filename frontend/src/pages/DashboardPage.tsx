@@ -1,10 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 
+const DASHBOARD_REFRESH_INTERVAL_MS = Number(import.meta.env.VITE_REFRESH_INTERVAL) || 60 * 60 * 1000;
+
 export const DashboardPage: React.FC = () => {
-  const { leads, navigate, setActiveChatLead, showNotification } = useApp();
+  const { leads, navigate, setActiveChatLead, showNotification, fetchDashboardData, isFetching, lastRefreshed, dashboardMetrics } = useApp();
   const [filter, setFilter] = useState<'all' | 'hot' | 'at-risk'>('all');
   const [timeframe, setTimeframe] = useState<'weekly' | 'monthly'>('weekly');
+
+  useEffect(() => {
+    // Fetch immediately on mount
+    fetchDashboardData();
+
+    // Start 60 minute interval
+    const intervalId = setInterval(() => {
+      fetchDashboardData();
+    }, DASHBOARD_REFRESH_INTERVAL_MS);
+
+    return () => clearInterval(intervalId);
+  }, []); // Empty dependency array ensures it only runs on mount
 
   const filteredLeads = leads.filter(l => {
     if (filter === 'hot') return l.priority === 'Hot';
@@ -47,6 +61,23 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-space-sm">
+          {/* Fetch Latest Data Button */}
+          <button
+            onClick={() => fetchDashboardData()}
+            disabled={isFetching}
+            className="flex items-center gap-space-xs px-space-md py-space-xs bg-primary text-on-primary hover:opacity-90 disabled:opacity-50 transition-all duration-200 rounded-lg shadow-sm font-label-md text-label-md"
+          >
+            <span className={`material-symbols-outlined text-label-lg ${isFetching ? 'animate-spin' : ''}`}>
+              refresh
+            </span>
+            <span>{isFetching ? 'Fetching...' : 'Fetch Latest Data'}</span>
+          </button>
+          
+          <div className="flex flex-col ml-1 mr-3">
+             <span className="text-[10px] text-on-surface-variant font-medium">Last updated:</span>
+             <span className="text-[11px] font-semibold">{lastRefreshed ? lastRefreshed.toLocaleTimeString() : 'Never'}</span>
+          </div>
+
           {/* Sync WhatsApp Web Status Chip */}
           <div className="flex items-center gap-space-xs px-space-md py-space-xs bg-surface-container-lowest shadow-sm rounded-lg border border-surface-container">
             <span className="relative flex h-2.5 w-2.5">
@@ -77,8 +108,8 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       <div className="px-margin space-y-space-xl pb-16">
-        {/* Row 1: 5 Metric KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-space-md">
+        {/* Row 1: 4 Metric KPI Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
           {/* 1. Total Leads */}
           <div className="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group border border-surface-container">
             <div className="flex items-center justify-between">
@@ -88,13 +119,13 @@ export const DashboardPage: React.FC = () => {
               </div>
             </div>
             <div className="my-space-md flex items-baseline justify-between">
-              <span className="font-display-lg text-display-lg text-on-surface tracking-tight font-bold">248</span>
+              <span className="font-display-lg text-display-lg text-on-surface tracking-tight font-bold">{dashboardMetrics?.totalLeads !== undefined ? dashboardMetrics.totalLeads : 0}</span>
               <span className="inline-flex items-center px-space-xs py-0.5 rounded bg-secondary-container/40 text-on-secondary-container font-label-sm text-label-sm font-semibold">
-                <span className="material-symbols-outlined text-[13px] mr-0.5">trending_up</span>+12.4%
+                <span className="material-symbols-outlined text-[13px] mr-0.5">trending_up</span>Live
               </span>
             </div>
             <div className="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
-              <span>vs previous month</span>
+              <span>All active leads</span>
               <svg className="w-16 h-5 text-secondary" fill="none" viewBox="0 0 60 20">
                 <path d="M1 17L12 12L25 15L38 8L50 11L59 2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
               </svg>
@@ -111,9 +142,9 @@ export const DashboardPage: React.FC = () => {
               </div>
             </div>
             <div className="my-space-md flex items-baseline justify-between">
-              <span className="font-display-lg text-display-lg text-on-surface tracking-tight font-bold">46</span>
+              <span className="font-display-lg text-display-lg text-on-surface tracking-tight font-bold">{dashboardMetrics?.highUrgency !== undefined ? dashboardMetrics.highUrgency : 0}</span>
               <span className="inline-flex items-center px-space-xs py-0.5 rounded bg-secondary-container/40 text-on-secondary-container font-label-sm text-label-sm font-semibold">
-                <span className="material-symbols-outlined text-[13px] mr-0.5">trending_up</span>+18.2%
+                <span className="material-symbols-outlined text-[13px] mr-0.5">trending_up</span>Live
               </span>
             </div>
             <div className="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
@@ -124,70 +155,47 @@ export const DashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* 3. At Risk Leads */}
+          {/* 3. Leads At Risk */}
           <div className="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group border border-surface-container">
             <div className="absolute top-0 right-0 left-0 h-1 bg-error"></div>
             <div className="flex items-center justify-between">
-              <span className="font-label-md text-label-md text-error font-semibold">At Risk Leads</span>
+              <span className="font-label-md text-label-md text-error font-semibold">Leads At Risk</span>
               <div className="w-8 h-8 rounded-lg bg-error-container/40 flex items-center justify-center text-error">
                 <span className="material-symbols-outlined text-label-lg">warning</span>
               </div>
             </div>
             <div className="my-space-md flex items-baseline justify-between">
-              <span className="font-display-lg text-display-lg text-on-surface tracking-tight font-bold">18</span>
-              <span className="inline-flex items-center px-space-xs py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">
-                <span className="material-symbols-outlined text-[13px] mr-0.5">arrow_upward</span>+3 this wk
+              <span className="font-display-lg text-display-lg text-on-surface tracking-tight font-bold">{dashboardMetrics?.atRiskLeads !== undefined ? dashboardMetrics.atRiskLeads : 0}</span>
+              <span className="inline-flex items-center px-space-xs py-0.5 rounded bg-error/10 text-error font-label-sm text-label-sm font-semibold">
+                <span className="material-symbols-outlined text-[13px] mr-0.5">priority_high</span>Action Needed
               </span>
             </div>
             <div className="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
-              <span className="text-error font-medium">Overdue SLA responses</span>
-              <svg className="w-16 h-5 text-error" fill="none" viewBox="0 0 60 20">
-                <path d="M1 4L15 9L29 7L42 15L51 12L59 18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-              </svg>
+              <span className="text-error font-medium">Overdue follow-ups</span>
+              <span className="text-on-surface-variant font-semibold">{(dashboardMetrics?.revenueAtRisk || 0) > 0 ? '₹' + (dashboardMetrics.revenueAtRisk/100000).toFixed(1) + ' L' : '₹0'} at risk</span>
             </div>
           </div>
 
-          {/* 4. Active Pipeline */}
+          {/* 4. Est. Pipeline Value */}
           <div className="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group border border-surface-container">
+            <div className="absolute top-0 right-0 left-0 h-1 bg-primary"></div>
             <div className="flex items-center justify-between">
-              <span className="font-label-md text-label-md text-on-surface-variant font-medium">Active Pipeline</span>
-              <div className="w-8 h-8 rounded-lg bg-primary-container text-on-primary flex items-center justify-center">
-                <span className="material-symbols-outlined text-label-lg">currency_rupee</span>
+              <span className="font-label-md text-label-md text-primary font-semibold">Est. Pipeline Value</span>
+              <div className="w-8 h-8 rounded-lg bg-primary-container/40 flex items-center justify-center text-primary">
+                <span className="material-symbols-outlined text-label-lg">payments</span>
               </div>
             </div>
             <div className="my-space-md flex items-baseline justify-between">
-              <span className="font-display-lg text-display-lg text-on-surface tracking-tight font-bold">₹2.4 Cr</span>
+              <span className="font-display-lg text-display-lg text-on-surface tracking-tight font-bold">{(dashboardMetrics?.estimatedPipelineValue || 0) > 0 ? '₹' + (dashboardMetrics.estimatedPipelineValue/100000).toFixed(1) + ' L' : '₹0'}</span>
               <span className="inline-flex items-center px-space-xs py-0.5 rounded bg-secondary-container/40 text-on-secondary-container font-label-sm text-label-sm font-semibold">
-                <span className="material-symbols-outlined text-[13px] mr-0.5">trending_up</span>+8.5%
+                <span className="material-symbols-outlined text-[13px] mr-0.5">trending_up</span>Live
               </span>
             </div>
             <div className="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
-              <span>74 active deals</span>
-              <svg className="w-16 h-5 text-primary-container" fill="none" viewBox="0 0 60 20">
-                <path d="M1 16L15 13L27 15L41 8L50 10L59 3" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-              </svg>
-            </div>
-          </div>
-
-          {/* 5. Revenue at Risk */}
-          <div className="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group border border-surface-container">
-            <div className="flex items-center justify-between">
-              <span className="font-label-md text-label-md text-on-surface-variant font-medium">Revenue at Risk</span>
-              <div className="w-8 h-8 rounded-lg bg-error-container/30 text-error flex items-center justify-center">
-                <span className="material-symbols-outlined text-label-lg">crisis_alert</span>
+              <span className="text-primary font-medium">Live sync</span>
+              <div className="w-16 h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+                <div className="h-full bg-primary" style={{ width: '84%' }}></div>
               </div>
-            </div>
-            <div className="my-space-md flex items-baseline justify-between">
-              <span className="font-display-lg text-display-lg text-error tracking-tight font-bold">₹42 L</span>
-              <span className="inline-flex items-center px-space-xs py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">
-                <span className="material-symbols-outlined text-[13px] mr-0.5">trending_down</span>-5.1%
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
-              <span className="text-error font-medium">Needs escalation</span>
-              <svg className="w-16 h-5 text-error" fill="none" viewBox="0 0 60 20">
-                <path d="M1 6L14 11L28 9L39 16L49 14L59 19" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-              </svg>
             </div>
           </div>
         </div>

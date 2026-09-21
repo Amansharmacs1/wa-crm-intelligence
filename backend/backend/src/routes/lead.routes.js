@@ -5,11 +5,17 @@ const {
   transformLeads,
   analyzeWithGemini,
   analyzeWithLlama,
-  analyzeWithWit
+  analyzeWithWit,
+  getLeads,
+  getDashboardMetrics
 } = require('../controllers/lead.controller');
 const { analyzeLeadSchema } = require('../schemas/lead.schema');
 const { validate } = require('../middleware/validate.middleware');
 const { requireConsent } = require('../middleware/consent.middleware');
+
+// GET endpoints
+router.get('/', getLeads);
+router.get('/dashboard', getDashboardMetrics);
 
 // Standard enterprise analysis and transformation endpoints
 router.post('/analyze', requireConsent, validate(analyzeLeadSchema), analyzeLead);

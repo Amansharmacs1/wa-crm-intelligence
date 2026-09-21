@@ -262,6 +262,8 @@ Please reply YES to allow analysis of this conversation, or NO to decline. You c
       } catch (err) {
           console.error("[Wa-CRM Popup] API or extraction failed:", err);
           updateUI('ERROR', 'Error', { error: `Analysis failed: ${err.message}` });
+          // Ensure we clear memory on failure too
+          chrome.storage.local.remove('activeConsent');
       }
   }
 

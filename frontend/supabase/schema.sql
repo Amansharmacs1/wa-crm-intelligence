@@ -54,3 +54,37 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- ==============================================================================
+-- 5. Create Leads Table
+-- ==============================================================================
+create table if not exists public.leads (
+  "leadId" text primary key,
+  "contactName" text not null,
+  "contactNumber" text,
+  "chatTime" jsonb,
+  "intent" text,
+  "language" text,
+  "urgency" text,
+  "urgencyReason" text,
+  "followUpRequired" boolean,
+  "followUpStatus" text,
+  "category" text,
+  "leadScore" integer,
+  "estimatedValue" jsonb,
+  "summary" text,
+  "buyingSignals" jsonb,
+  "recommendedAction" text,
+  "createdAt" timestamp with time zone default timezone('utc'::text, now()) not null,
+  "updatedAt" timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Note: Since the backend uses a service role key to manage leads, RLS on this table 
+-- is optional but recommended if clients need direct read access later.
+alter table public.leads enable row level security;
+
+create policy "Service role can manage leads"
+  on public.leads for all
+  using (true)
+  with check (true);
+

@@ -22,12 +22,13 @@ const analyzeLead = async (req, res, next) => {
         });
     }
 
+    // Log the incoming conversation ONLY if in development and LOG_APPROVED_CHATS is true
     if (process.env.NODE_ENV === 'development' && process.env.LOG_APPROVED_CHATS === 'true') {
         console.log('\n[CONSENT APPROVED — DEVELOPMENT ONLY]');
         console.log(JSON.stringify(conversation, null, 2));
     }
 
-    // Process with the real AI pipeline from origin/model
+    // Process with the real AI pipeline
     const leads = await transformConversations(req.body);
 
     console.log(`\n=== Transformed WhatsApp Conversations into ${leads.length} Structured Lead(s) ===`);
@@ -36,33 +37,20 @@ const analyzeLead = async (req, res, next) => {
     }
     console.log('=================================================================================\n');
 
-    // Append to demo file for debugging
-    try {
-        const demoFilePath = path.join(__dirname, '../../demo_leads.json');
-        let existingData = [];
-        if (fs.existsSync(demoFilePath)) {
-            existingData = JSON.parse(fs.readFileSync(demoFilePath, 'utf8'));
-        }
-        
-        existingData.push({
-            timestamp: new Date().toISOString(),
-            contactName: conversation.contactName,
-            analysis: leads[0] || generateMockAnalysis(conversation.contactName),
-            messageCount: conversation.messages.length
-        });
-        
-        fs.writeFileSync(demoFilePath, JSON.stringify(existingData, null, 2));
-        console.log(`\n✅ Lead data successfully appended to apps/server/demo_leads.json`);
-    } catch (fsError) {
-        console.error('Failed to write to demo file:', fsError);
+    // Supabase upsert logic
+    const { upsertLead } = require('../services/supabase.service');
+    
+    const savedLeads = [];
+    for (const lead of leads) {
+        const savedLead = await upsertLead(lead);
+        if (savedLead) savedLeads.push(savedLead);
     }
 
     return res.status(200).json({
       success: true,
-      totalLeads: leads.length,
-      leads: leads,
-      // Provide first lead for backward compatibility with Chrome extension popup
-      lead: leads[0] || null
+      totalLeads: savedLeads.length > 0 ? savedLeads.length : leads.length,
+      leads: savedLeads.length > 0 ? savedLeads : leads,
+      lead: savedLeads.length > 0 ? savedLeads[0] : (leads[0] || null)
     });
   } catch (error) {
     console.error('Lead analysis error:', error);
@@ -144,10 +132,53 @@ const analyzeWithWit = async (req, res, next) => {
   }
 };
 
+const getLeads = async (req, res, next) => {
+    try {
+        const { getLeads: fetchLeads } = require('../services/supabase.service');
+        const leads = await fetchLeads(req.query);
+        res.status(200).json({
+            success: true,
+            total: leads.length,
+            leads
+        });
+    } catch (err) {
+        console.error('Error fetching leads:', err);
+        res.status(500).json({ success: false, message: 'Failed to fetch leads' });
+    }
+};
+
+const getDashboardMetrics = async (req, res, next) => {
+    try {
+        const { getLeads: fetchLeads } = require('../services/supabase.service');
+        const leads = await fetchLeads({});
+        
+        const metrics = {
+            totalLeads: leads.length,
+            safeLeads: leads.filter(l => l.category === 'Safe').length,
+            atRiskLeads: leads.filter(l => l.category === 'At Risk').length,
+            highUrgency: leads.filter(l => l.urgency === 'High' || l.urgency === 'Critical').length,
+            followUpsRequired: leads.filter(l => l.followUpRequired && l.followUpStatus !== 'Completed').length,
+            estimatedPipelineValue: leads.reduce((sum, l) => sum + (l.estimatedValue?.amount || 0), 0),
+            revenueAtRisk: leads.filter(l => l.category === 'At Risk').reduce((sum, l) => sum + (l.estimatedValue?.amount || 0), 0)
+        };
+
+        res.status(200).json({
+            success: true,
+            metrics,
+            latestLeads: leads.slice(0, 10)
+        });
+    } catch (err) {
+        console.error('Error fetching dashboard metrics:', err);
+        res.status(500).json({ success: false, message: 'Failed to fetch dashboard metrics' });
+    }
+};
+
 module.exports = {
   analyzeLead,
   transformLeads: analyzeLead,
   analyzeWithGemini,
   analyzeWithLlama,
-  analyzeWithWit
+  analyzeWithWit,
+  getLeads,
+  getDashboardMetrics
 };
