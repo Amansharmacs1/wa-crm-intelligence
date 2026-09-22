@@ -43,7 +43,7 @@ const upsertLead = async (leadData) => {
         const upsertedLead = await Lead.findOneAndUpdate(
             { contactName: leadData.contactName }, // Assuming contactName is unique per user chat
             { $set: payload },
-            { new: true, upsert: true, setDefaultsOnInsert: true }
+            { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true }
         ).lean();
 
         console.log(`[MongoDB] Successfully upserted lead: ${upsertedLead.leadId}`);
