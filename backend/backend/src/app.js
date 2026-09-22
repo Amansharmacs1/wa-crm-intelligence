@@ -36,6 +36,9 @@ app.get('/api/health', (req, res) => {
 
 // API Routes
 app.use('/api/leads', leadRoutes);
+
+const { handleChat } = require('./controllers/chat.controller');
+app.post('/api/chat', handleChat);
 app.use('/api/ai', leadRoutes);
 
 // Error handling

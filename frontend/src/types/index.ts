@@ -3,11 +3,26 @@ export type LeadPriority = 'Hot' | 'Warm' | 'Cold' | 'At-Risk';
 export type LeadSentiment = 'Positive' | 'Neutral' | 'Urgent' | 'Critical';
 
 export interface Lead {
-  id: string;
+  id: string; // Used as internal UI key, but matches leadId
+  leadId: string; // Explicit field for Lead ID
   name: string;
   phone: string;
   email: string;
   company: string;
+  
+  // Custom fields directly from backend MongoDB
+  intent?: string;
+  language?: string;
+  urgency?: string;
+  category?: string;
+  followUpStatus?: string;
+  followUpRequired?: boolean;
+  chatTime?: {
+    firstMessageAt: string | null;
+    lastMessageAt: string | null;
+    durationMinutes: number | null;
+  };
+
   dealValue: number;
   dealValueFormatted: string;
   stage: LeadStage;

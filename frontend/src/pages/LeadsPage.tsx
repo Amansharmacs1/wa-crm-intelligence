@@ -7,7 +7,7 @@ interface LeadsPageProps {
 }
 
 export const LeadsPage: React.FC<LeadsPageProps> = ({ initialFilter }) => {
-  const { leads, navigate, setActiveChatLead, setIsAddLeadModalOpen, showNotification } = useApp();
+  const { leads, navigate, setSelectedLeadId, setIsAddLeadModalOpen, showNotification } = useApp();
   const [activeTab, setActiveTab] = useState<'all' | 'Hot' | 'At-Risk' | 'Warm' | 'Cold'>(initialFilter || 'all');
   const [selectedStage, setSelectedStage] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -36,15 +36,15 @@ export const LeadsPage: React.FC<LeadsPageProps> = ({ initialFilter }) => {
   const totalPipeline = leads.reduce((acc, l) => acc + l.dealValue, 0);
 
   return (
-    <div className="flex flex-col w-full px-margin py-space-xl gap-space-lg pb-16">
+    <div className="flex flex-col w-full max-w-7xl mx-auto px-8 pt-10 pb-16 gap-6">
       {/* Top Header & Actions */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
         <div className="flex flex-col">
-          <div className="flex items-center gap-space-xs">
-            <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">
+          <div className="flex items-center gap-3">
+            <h1 className="text-[32px] font-bold tracking-tight text-apple-text leading-tight">
               {activeTab === 'Hot' ? 'Hot Leads' : activeTab === 'At-Risk' ? 'At-Risk Leads' : 'All Leads'}
             </h1>
-            <span className="px-space-sm py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm font-semibold">
+            <span className="px-3 py-1 rounded-full bg-apple-hover text-apple-text-secondary text-[12px] font-semibold">
               {filteredLeads.length} active
             </span>
           </div>
@@ -221,119 +221,74 @@ export const LeadsPage: React.FC<LeadsPageProps> = ({ initialFilter }) => {
         <div className="overflow-x-auto w-full">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-surface-container-low/70 text-on-surface-variant font-label-sm text-label-sm border-b border-surface-container">
-                <th className="py-space-sm px-space-md">Lead Details</th>
-                <th className="py-space-sm px-space-md">Deal Value</th>
-                <th className="py-space-sm px-space-md">Stage</th>
-                <th className="py-space-sm px-space-md">AI Score & Priority</th>
-                <th className="py-space-sm px-space-md">Latest Message Snippet</th>
-                <th className="py-space-sm px-space-md">Rep</th>
-                <th className="py-space-sm px-space-md text-right">Actions</th>
+              <tr className="border-b border-apple-border/50 text-[12px] font-medium text-apple-text-secondary uppercase tracking-wider">
+                <th className="px-4 py-3 font-medium whitespace-nowrap">Lead ID</th>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">Contact</th>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">Activity Timeline</th>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">Intent</th>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">Language</th>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">Urgency</th>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">Category</th>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">Deal Value</th>
+                <th className="px-4 py-3 font-medium text-right whitespace-nowrap"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-surface-container">
-              {filteredLeads.map(lead => (
-                <tr
-                  key={lead.id}
-                  onClick={() => navigate('lead-details', { leadId: lead.id })}
-                  className="hover:bg-surface-container-low/60 transition-colors cursor-pointer group"
-                >
-                  {/* Lead Info */}
-                  <td className="py-space-md px-space-md">
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <div className="w-10 h-10 rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center font-bold text-xs">
-                          {lead.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
-                        </div>
-                        {lead.unreadWhatsAppCount > 0 && (
-                          <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#25D366] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
-                            {lead.unreadWhatsAppCount}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="font-label-lg text-label-lg text-on-surface font-semibold group-hover:text-secondary transition-colors">
-                          {lead.name}
-                        </span>
-                        <span className="text-xs text-on-surface-variant">
-                          {lead.company} • {lead.phone}
-                        </span>
-                      </div>
+            <tbody className="divide-y divide-apple-border/50">
+              {filteredLeads.map((lead) => (
+                <tr key={lead.id} className="hover:bg-apple-hover/50 transition-colors group cursor-pointer" onClick={() => navigate('lead-details', { leadId: lead.id || lead.leadId })}>
+                  <td className="px-4 py-3">
+                    <span className="text-[12px] font-medium text-apple-text-secondary bg-apple-hover px-2 py-1 rounded-md">{lead.leadId || lead.id}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-col">
+                      <span className="text-[13px] font-medium text-apple-text">{lead.name}</span>
+                      <span className="text-[11px] text-apple-text-secondary">{lead.phone || 'N/A'}</span>
                     </div>
                   </td>
-
-                  {/* Deal Value */}
-                  <td className="py-space-md px-space-md">
-                    <span className="font-label-lg text-label-lg text-on-surface font-bold">
-                      {lead.dealValueFormatted}
-                    </span>
-                  </td>
-
-                  {/* Stage Pill */}
-                  <td className="py-space-md px-space-md">
-                    <span className="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-surface-container-high text-on-surface">
-                      {lead.stage}
-                    </span>
-                  </td>
-
-                  {/* Score & Priority */}
-                  <td className="py-space-md px-space-md">
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                        lead.priority === 'Hot'
-                          ? 'bg-secondary-container text-on-secondary-container'
-                          : lead.priority === 'At-Risk'
-                          ? 'bg-error-container text-on-error-container'
-                          : 'bg-surface-container-high text-on-surface'
-                      }`}>
-                        <span className="material-symbols-outlined text-[13px]">
-                          {lead.priority === 'Hot' ? 'local_fire_department' : lead.priority === 'At-Risk' ? 'warning' : 'bolt'}
-                        </span>
-                        {lead.score}
-                      </span>
-                      <span className="text-xs text-on-surface-variant">{lead.sentiment}</span>
+                  <td className="px-4 py-3 min-w-[120px]">
+                    <div className="flex flex-col">
+                      <span className="text-[12px] text-apple-text">First Contact: {lead.chatTime?.firstMessageAt ? new Date(lead.chatTime.firstMessageAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--'}</span>
+                      <span className="text-[11px] text-apple-text-secondary">Last Interaction: {lead.chatTime?.lastMessageAt ? new Date(lead.chatTime.lastMessageAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--'}</span>
                     </div>
                   </td>
-
-                  {/* Last message */}
-                  <td className="py-space-md px-space-md max-w-xs">
-                    <p className="text-xs text-on-surface truncate">
-                      "{lead.lastMessage}"
-                    </p>
-                    <span className="text-[10px] text-on-surface-variant">{lead.lastMessageTime}</span>
+                  <td className="px-4 py-3">
+                    <span className="text-[13px] font-medium text-apple-text">{lead.intent || 'Unknown'}</span>
                   </td>
-
-                  {/* Rep */}
-                  <td className="py-space-md px-space-md">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-primary-container text-on-primary text-xs flex items-center justify-center font-bold">
-                        {lead.assignedAgent.avatar}
-                      </div>
-                      <span className="text-xs font-medium text-on-surface">{lead.assignedAgent.name}</span>
-                    </div>
+                  <td className="px-4 py-3">
+                    <span className="text-[13px] text-apple-text-secondary">{lead.language || 'English'}</span>
                   </td>
-
-                  {/* Actions */}
-                  <td className="py-space-md px-space-md text-right" onClick={e => e.stopPropagation()}>
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => setActiveChatLead(lead)}
-                        className="px-2.5 py-1 rounded-lg bg-[#075E54] hover:bg-secondary text-white text-xs font-semibold flex items-center gap-1 shadow-sm transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-sm">chat</span>
-                        <span>Chat</span>
-                      </button>
-                      <button
-                        onClick={() => navigate('lead-details', { leadId: lead.id })}
-                        className="p-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs transition-colors"
-                        title="View Details"
-                      >
-                        <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                      </button>
-                    </div>
+                  <td className="px-4 py-3">
+                    <span className={`text-[12px] font-medium px-2 py-0.5 rounded-full ${lead.urgency === 'High' || lead.urgency === 'Critical' ? 'bg-apple-red/10 text-apple-red' : lead.urgency === 'Festival based' ? 'bg-apple-blue/10 text-apple-blue' : 'bg-apple-hover text-apple-text-secondary'}`}>{lead.urgency || 'Low'}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`text-[12px] font-medium px-2 py-0.5 rounded-full ${lead.category === 'At Risk' ? 'bg-[#ff9500]/10 text-[#ff9500]' : 'bg-apple-green/10 text-apple-green'}`}>{lead.category || 'Safe'}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-[13px] font-semibold text-apple-text">{lead.dealValueFormatted}</span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button 
+                      onClick={(e) => {
+      e.stopPropagation();
+      console.log('Button clicked, navigating to:', lead.id || lead.leadId);
+      navigate('lead-details', { leadId: lead.id || lead.leadId });
+    }}
+                      className="inline-flex items-center gap-1 text-apple-blue font-medium text-[13px] hover:text-apple-blue/80 transition-colors"
+                    >
+                      <span>Details</span>
+                      <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                    </button>
                   </td>
                 </tr>
               ))}
+              
+              {filteredLeads.length === 0 && (
+                <tr>
+                  <td colSpan={9} className="px-6 py-12 text-center text-apple-text-secondary text-[14px]">
+                    No active leads match the selected filters.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

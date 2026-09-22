@@ -3,17 +3,17 @@ import { useApp } from '../context/AppContext';
 import type { LeadStage } from '../types';
 
 export const LeadDetailPage: React.FC = () => {
-  const { selectedLead, navigate, updateLeadStage, chatMessages, sendChatMessage, showNotification } = useApp();
+  const { selectedLead, navigate, updateLeadStage, chatMessages, sendChatMessage } = useApp();
   const [showPhone, setShowPhone] = useState(false);
   const [replyText, setReplyText] = useState('');
 
   if (!selectedLead) {
     return (
-      <div className="p-12 text-center">
-        <p className="text-on-surface-variant mb-4">No lead selected.</p>
+      <div className="flex flex-col items-center justify-center h-[60vh]">
+        <p className="text-apple-text-secondary text-[15px] mb-4">No lead selected.</p>
         <button
           onClick={() => navigate('all-leads')}
-          className="px-4 py-2 bg-primary-container text-on-primary rounded-lg"
+          className="apple-btn-primary px-6"
         >
           Return to Leads
         </button>
@@ -21,415 +21,256 @@ export const LeadDetailPage: React.FC = () => {
     );
   }
 
+  const stages: LeadStage[] = ['New', 'Contacted', 'Proposal Sent', 'Negotiation', 'Closed Won'];
+  const currentIndex = stages.indexOf(selectedLead.stage);
+
+  const getUrgencyColor = (urgency?: string) => {
+    switch (urgency) {
+      case 'High':
+      case 'Critical':
+        return 'text-apple-red bg-apple-red/10';
+      case 'Festival based':
+        return 'text-[#ff9500] bg-[#ff9500]/10';
+      case 'Medium':
+        return 'text-apple-blue bg-apple-blue/10';
+      default:
+        return 'text-apple-text-secondary bg-apple-hover';
+    }
+  };
+
+  const getCategoryColor = (cat?: string) => {
+    return cat === 'At Risk' ? 'text-[#ff9500] bg-[#ff9500]/10' : 'text-apple-green bg-apple-green/10';
+  };
+
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyText.trim()) return;
     sendChatMessage(replyText);
     setReplyText('');
-    showNotification('WhatsApp message dispatched to client.');
   };
 
-  const stages: LeadStage[] = ['New', 'Contacted', 'Proposal Sent', 'Negotiation', 'Closed Won'];
-
   return (
-    <div className="flex flex-col w-full px-margin py-space-xl gap-space-lg max-w-[1720px] mx-auto pb-16">
-      {/* Top Customer Card */}
-      <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md border border-surface-container">
-        {/* Breadcrumb Navigation */}
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => navigate('all-leads')}
-            className="inline-flex items-center gap-space-xs text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors group"
-          >
-            <span className="material-symbols-outlined text-label-md group-hover:-translate-x-1 transition-transform">arrow_back</span>
-            <span>Back to All Leads</span>
-          </button>
-          <div className="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
-            <span className="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
-            <span>Last active: 5 min ago on WhatsApp Web</span>
-          </div>
-        </div>
-
-        {/* Main Profile Header Block */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-space-lg pt-space-xs">
-          <div className="flex items-start md:items-center gap-space-md flex-wrap sm:flex-nowrap">
-            {/* Avatar */}
-            <div className="w-14 h-14 rounded-full bg-primary-container text-on-primary font-headline-md text-headline-md flex items-center justify-center tracking-tight shadow-sm shrink-0 font-bold">
-              {selectedLead.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
-            </div>
-            <div className="flex flex-col gap-space-xs min-w-0">
-              <div className="flex items-center gap-space-sm flex-wrap">
-                <h1 className="font-headline-md text-headline-md text-on-surface tracking-tight font-bold truncate">
-                  {selectedLead.name}
-                </h1>
-                <span className="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-high px-space-sm py-0.5 rounded font-medium">
-                  {selectedLead.company}
-                </span>
-                {selectedLead.priority === 'At-Risk' ? (
-                  <span className="inline-flex items-center gap-1 bg-error-container text-on-error-container font-label-sm text-label-sm px-space-sm py-0.5 rounded-full font-medium">
-                    <span className="material-symbols-outlined text-label-sm">warning</span>
-                    <span>AT RISK • Competitor comparison detected</span>
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-space-sm py-0.5 rounded-full font-medium">
-                    <span className="material-symbols-outlined text-label-sm">local_fire_department</span>
-                    <span>HOT LEAD • Budget Approved</span>
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-space-md text-on-surface-variant font-body-sm text-body-sm flex-wrap">
-                <span className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-label-sm text-secondary">verified</span>
-                  <span>{showPhone ? selectedLead.phone : selectedLead.phone.substring(0, 9) + ' •••••'} (WhatsApp Verified)</span>
-                </span>
-                <span className="text-outline-variant">•</span>
-                <span className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-label-sm text-on-surface-variant">schedule</span>
-                  <span>{selectedLead.lastMessageTime} awaiting response</span>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Intent Gauge + Actions */}
-          <div className="flex items-center gap-space-lg self-end lg:self-center">
-            {/* Circular Lead Score Widget */}
-            <div className="flex items-center gap-space-sm bg-surface-container-low px-space-md py-space-xs rounded-xl border border-surface-container">
-              <div className="relative w-12 h-12 flex items-center justify-center">
-                <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 48 48">
-                  <circle className="text-surface-container-high" cx="24" cy="24" fill="none" r="19" stroke="currentColor" strokeWidth="4"></circle>
-                  <circle
-                    className="text-secondary"
-                    cx="24"
-                    cy="24"
-                    fill="none"
-                    r="19"
-                    stroke="currentColor"
-                    strokeDasharray="119.38"
-                    strokeDashoffset={119.38 - (119.38 * selectedLead.score) / 100}
-                    strokeLinecap="round"
-                    strokeWidth="4"
-                  ></circle>
-                </svg>
-                <div className="absolute flex flex-col items-center justify-center text-center">
-                  <span className="font-headline-sm text-headline-sm text-on-surface leading-none font-bold">
-                    {selectedLead.score}
-                  </span>
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold">Lead Intent</span>
-                <span className="font-label-sm text-label-sm text-secondary font-bold">High Intent</span>
-              </div>
-            </div>
-
-            {/* Quick Action Buttons */}
-            <div className="flex items-center gap-space-sm">
-              <button
-                onClick={() => showNotification('Syncing WhatsApp thread with cloud database... Completed.')}
-                className="flex items-center gap-space-xs px-space-md py-2 rounded-lg bg-primary text-white hover:bg-primary-container font-label-md text-label-md transition-colors shadow-sm"
-              >
-                <span className="material-symbols-outlined text-label-md text-secondary-container">sync</span>
-                <span>Sync Chat Now</span>
-              </button>
-              <button
-                onClick={() => {
-                  const nextStageIndex = (stages.indexOf(selectedLead.stage) + 1) % stages.length;
-                  updateLeadStage(selectedLead.id, stages[nextStageIndex]);
-                }}
-                className="flex items-center gap-space-xs px-space-md py-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high font-label-md text-label-md transition-colors border border-surface-container"
-              >
-                <span className="material-symbols-outlined text-label-md">arrow_forward</span>
-                <span>Advance Stage</span>
-              </button>
-            </div>
-          </div>
+    <div className="flex flex-col w-full max-w-7xl mx-auto px-8 py-8 gap-8 h-screen overflow-hidden">
+      
+      {/* Header / Breadcrumbs */}
+      <div className="flex items-center justify-between shrink-0">
+        <button
+          onClick={() => navigate('dashboard')}
+          className="flex items-center gap-1.5 text-[14px] text-apple-text-secondary hover:text-apple-text transition-colors group font-medium"
+        >
+          <span className="material-symbols-outlined text-[16px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+          Back to Dashboard
+        </button>
+        <div className="flex items-center gap-2">
+           <span className="w-2 h-2 rounded-full bg-apple-green animate-pulse"></span>
+           <span className="text-[13px] text-apple-text-secondary font-medium">Live Connection</span>
         </div>
       </div>
 
-      {/* 3-Column Layout Matching Stitch Screen */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
-        {/* LEFT COLUMN: Customer Info (span 4) */}
-        <div className="lg:col-span-4 flex flex-col gap-space-lg">
-          <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md border border-surface-container">
-            <div className="flex items-center justify-between pb-2 border-b border-surface-container">
-              <div className="flex items-center gap-space-sm">
-                <span className="material-symbols-outlined text-headline-sm text-primary-container">badge</span>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">Customer Info</h2>
+      {/* Main Content Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 h-full pb-20">
+        
+        {/* Left Column: Customer Profile & AI Insights (span 5) */}
+        <div className="md:col-span-5 flex flex-col gap-6 overflow-y-auto pr-2 scrollbar-none pb-12">
+          
+          {/* Identity Card */}
+          <div className="apple-card p-6 flex flex-col gap-6 shrink-0">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-apple-hover text-apple-text flex items-center justify-center text-[22px] font-bold tracking-tight shrink-0">
+                {selectedLead.name.substring(0, 2).toUpperCase()}
               </div>
-              <span className="font-label-sm text-label-sm bg-secondary-container/40 text-on-secondary-container px-space-sm py-0.5 rounded-full font-semibold">
-                Enterprise Tier
-              </span>
+              <div className="flex flex-col">
+                <h1 className="text-[22px] font-semibold text-apple-text tracking-tight leading-tight">
+                  {selectedLead.name}
+                </h1>
+                <span className="text-[13px] text-apple-text-secondary">
+                  {selectedLead.company !== 'Unknown' ? selectedLead.company : 'Individual Client'}
+                </span>
+              </div>
             </div>
 
-            <div className="flex flex-col divide-y divide-surface-container text-on-surface">
-              <div className="py-2.5 flex justify-between items-center text-sm">
-                <span className="text-on-surface-variant">Full Name</span>
-                <span className="font-semibold text-on-surface">{selectedLead.name}</span>
-              </div>
+            <div className="h-[1px] w-full bg-apple-border/50"></div>
 
-              <div className="py-2.5 flex justify-between items-center text-sm">
-                <span className="text-on-surface-variant">Phone</span>
-                <div className="flex items-center gap-1.5 font-medium text-on-surface">
-                  <span>{showPhone ? selectedLead.phone : selectedLead.phone.substring(0, 9) + ' •••••'}</span>
-                  <button
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-between items-center text-[14px]">
+                <span className="text-apple-text-secondary font-medium">Lead ID</span>
+                <span className="text-apple-text font-semibold">{selectedLead.leadId || selectedLead.id}</span>
+              </div>
+              
+              <div className="flex justify-between items-center text-[14px]">
+                <span className="text-apple-text-secondary font-medium">Phone</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-apple-text font-semibold tracking-wide">
+                    {showPhone ? selectedLead.phone : selectedLead.phone.replace(/.(?=.{4})/g, '•')}
+                  </span>
+                  <button 
                     onClick={() => setShowPhone(!showPhone)}
-                    className="text-on-surface-variant hover:text-on-surface p-1 rounded"
-                    title={showPhone ? 'Mask Phone' : 'Reveal Phone'}
+                    className="text-apple-blue hover:opacity-80 transition-opacity"
                   >
-                    <span className="material-symbols-outlined text-sm">
-                      {showPhone ? 'visibility' : 'visibility_off'}
+                    <span className="material-symbols-outlined text-[16px]">
+                      {showPhone ? 'visibility_off' : 'visibility'}
                     </span>
                   </button>
                 </div>
               </div>
 
-              <div className="py-2.5 flex justify-between items-center text-sm">
-                <span className="text-on-surface-variant">Company</span>
-                <span className="font-medium text-on-surface">{selectedLead.company}</span>
+              <div className="flex justify-between items-center text-[14px]">
+                <span className="text-apple-text-secondary font-medium">Estimated Value</span>
+                <span className="text-apple-text font-semibold">{selectedLead.dealValueFormatted}</span>
               </div>
+            </div>
+            
+            <div className="h-[1px] w-full bg-apple-border/50"></div>
 
-              <div className="py-2.5 flex justify-between items-center text-sm">
-                <span className="text-on-surface-variant">Ingestion Source</span>
-                <span className="font-medium text-on-surface flex items-center gap-1 text-secondary">
-                  <span className="material-symbols-outlined text-sm">cloud_sync</span>
-                  WhatsApp Web Extension
+            <div className="flex flex-col gap-3">
+              <h3 className="text-[12px] font-semibold text-apple-text-secondary uppercase tracking-wider">Classification</h3>
+              <div className="flex flex-wrap gap-2">
+                <span className={`px-2.5 py-1 rounded-full text-[12px] font-semibold ${getCategoryColor(selectedLead.category)}`}>
+                  {selectedLead.category || 'Safe'}
+                </span>
+                <span className={`px-2.5 py-1 rounded-full text-[12px] font-semibold ${getUrgencyColor(selectedLead.urgency)}`}>
+                  {selectedLead.urgency || 'Low'}
+                </span>
+                <span className="px-2.5 py-1 rounded-full text-[12px] font-semibold bg-apple-hover text-apple-text-secondary">
+                  {selectedLead.intent || 'Unknown'}
                 </span>
               </div>
+            </div>
+          </div>
 
-              <div className="py-2.5 flex justify-between items-center text-sm">
-                <span className="text-on-surface-variant">Assigned Rep</span>
+          {/* AI Executive Summary Card */}
+          <div className="apple-card p-6 flex flex-col gap-4 shrink-0">
+            <div className="flex items-center justify-between pb-4 border-b border-apple-border/50">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[20px] text-apple-blue">auto_awesome</span>
+                <h2 className="text-[16px] font-semibold text-apple-text tracking-tight">AI Executive Summary</h2>
+              </div>
+              <span className="px-2 py-0.5 rounded-full bg-apple-blue/10 text-apple-blue text-[11px] font-bold tracking-wide uppercase">
+                Gemini Pro
+              </span>
+            </div>
+
+            <div className="bg-[#fbfbfd] p-5 rounded-xl border border-apple-border/30">
+              <p className="text-[14px] text-apple-text leading-relaxed">
+                {selectedLead.aiSummary || selectedLead.lastMessage || "Analysis is currently pending. Please ensure the chat has been synchronized."}
+              </p>
+            </div>
+
+            {selectedLead.chatTime && (
+              <div className="flex items-center justify-between mt-2 text-[12px] text-apple-text-secondary font-medium">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-5 h-5 rounded-full bg-primary-container text-on-primary text-[10px] flex items-center justify-center font-bold">
-                    {selectedLead.assignedAgent.avatar}
-                  </div>
-                  <span className="font-medium text-on-surface">{selectedLead.assignedAgent.name}</span>
+                  <span className="material-symbols-outlined text-[14px]">schedule</span>
+                  {selectedLead.chatTime.firstMessageAt ? new Date(selectedLead.chatTime.firstMessageAt).toLocaleString([], {hour:'2-digit', minute:'2-digit', day:'numeric', month:'short'}) : '--'}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[14px]">update</span>
+                  {selectedLead.chatTime.lastMessageAt ? new Date(selectedLead.chatTime.lastMessageAt).toLocaleString([], {hour:'2-digit', minute:'2-digit', day:'numeric', month:'short'}) : '--'}
                 </div>
               </div>
-
-              <div className="py-2.5 flex justify-between items-center text-sm">
-                <span className="text-on-surface-variant">Estimated Value</span>
-                <span className="font-headline-sm text-headline-sm text-on-surface font-bold text-right">
-                  {selectedLead.dealValueFormatted}
-                </span>
-              </div>
-
-              <div className="py-2.5 flex justify-between items-center text-sm">
-                <span className="text-on-surface-variant">Pipeline Stage</span>
-                <span className="font-semibold text-on-tertiary-container bg-surface-container px-2.5 py-0.5 rounded text-xs">
-                  {selectedLead.stage}
-                </span>
-              </div>
-
-              <div className="py-2.5 flex flex-col gap-1.5">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-on-surface-variant">Deal Probability</span>
-                  <span className="font-bold text-secondary">{selectedLead.score}% Confidence</span>
-                </div>
-                <div className="w-full bg-surface-container rounded-full h-2">
-                  <div className="bg-secondary h-2 rounded-full transition-all" style={{ width: `${selectedLead.score}%` }}></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Tags */}
-            <div className="flex flex-col gap-1.5 pt-2">
-              <span className="font-label-sm text-xs text-on-surface-variant uppercase tracking-wider font-semibold">Applied Tags</span>
-              <div className="flex flex-wrap gap-1.5">
-                {selectedLead.tags.map((t, idx) => (
-                  <span key={idx} className="bg-surface-container-high text-on-surface text-xs px-2.5 py-1 rounded-full font-medium">
-                    #{t}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Engagement Velocity */}
-            <div className="bg-surface-container-low rounded-lg p-space-sm flex items-center justify-between mt-2 border border-surface-container">
-              <div className="flex flex-col">
-                <span className="text-xs text-on-surface-variant">Sync Velocity</span>
-                <span className="font-semibold text-sm text-on-surface">18 msgs / 48 hrs</span>
-              </div>
-              <svg className="w-24 h-7 text-secondary" fill="none" viewBox="0 0 100 30">
-                <path d="M0 25 L15 20 L30 24 L45 12 L60 18 L75 5 L90 14 L100 8" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path>
-                <circle cx="100" cy="8" fill="currentColor" r="3"></circle>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        {/* MIDDLE COLUMN: AI Summary & Signals (span 4) */}
-        <div className="lg:col-span-4 flex flex-col gap-space-lg">
-          {/* Card 1: AI Summary */}
-          <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md border border-surface-container">
-            <div className="flex items-center justify-between pb-2 border-b border-surface-container">
-              <div className="flex items-center gap-space-xs">
-                <span className="material-symbols-outlined text-headline-sm text-on-tertiary-container">auto_awesome</span>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">AI Summary</h2>
-              </div>
-              <span className="font-label-sm text-xs text-on-tertiary-container bg-surface-container px-2.5 py-0.5 rounded-full flex items-center gap-1 font-semibold">
-                <span className="material-symbols-outlined text-xs">bolt</span>
-                Live Model
-              </span>
-            </div>
-
-            <p className="font-body-md text-sm text-on-surface-variant leading-relaxed bg-surface-container-low/70 p-space-md rounded-lg border border-surface-container">
-              {selectedLead.aiSummary || "Strong purchasing intent detected. Decision maker has secured budget approval for multi-tier WhatsApp automated routing."}
-            </p>
-
-            <div className="flex items-center justify-between text-xs text-on-surface-variant pt-1">
-              <span className="flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm text-secondary">psychology</span>
-                Intent: <strong>Commercial High</strong>
-              </span>
-              <span className="text-secondary font-bold">Confidence 96%</span>
-            </div>
+            )}
           </div>
 
-          {/* Card 2: Buying Signals & Risk Indicators */}
-          <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md border border-surface-container">
-            <div className="flex items-center justify-between pb-2 border-b border-surface-container">
-              <div className="flex items-center gap-space-xs">
-                <span className="material-symbols-outlined text-headline-sm text-secondary">insights</span>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">Signals & Risks</h2>
-              </div>
-              <span className="text-xs text-on-surface-variant font-medium">Real-time NLP</span>
-            </div>
+          {/* Pipeline Stage Controller */}
+          <div className="apple-card p-6 shrink-0 mb-4">
+            <h2 className="text-[15px] font-semibold text-apple-text tracking-tight mb-5">Pipeline Stage</h2>
+            <div className="relative flex justify-between items-center w-full">
+              {/* Background Line */}
+              <div className="absolute top-1/2 left-4 right-4 h-1 bg-apple-hover -translate-y-1/2 z-0 rounded-full"></div>
+              {/* Progress Line */}
+              <div 
+                className="absolute top-1/2 left-4 h-1 bg-apple-blue -translate-y-1/2 z-0 rounded-full transition-all duration-500"
+                style={{ width: `calc(${(currentIndex / (stages.length - 1)) * 100}% - 2rem)` }}
+              ></div>
 
-            {/* Buying Signals */}
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs text-secondary font-bold uppercase tracking-wider flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm">trending_up</span>
-                Buying Signals ({selectedLead.buyingSignals?.length || 3})
-              </span>
-              <div className="flex flex-col gap-1.5 mt-1">
-                {(selectedLead.buyingSignals || [
-                  "Explicit budget approval confirmed for deal size",
-                  "Immediate rollout requested before next Tuesday",
-                  "Key decision maker actively responding in under 3 minutes"
-                ]).map((signal, idx) => (
-                  <div key={idx} className="flex items-start gap-2 bg-surface-container-low p-2 rounded-lg text-xs text-on-surface">
-                    <span className="material-symbols-outlined text-sm text-secondary shrink-0 mt-0.5">check_circle</span>
-                    <span>{signal}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Risk Indicators */}
-            <div className="flex flex-col gap-1.5 pt-2 border-t border-surface-container">
-              <span className="text-xs text-error font-bold uppercase tracking-wider flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm">report_problem</span>
-                Active Risk Alerts
-              </span>
-              <div className="flex flex-col gap-1.5 mt-1">
-                {(selectedLead.blockers?.length ? selectedLead.blockers : [
-                  "Requires SLA confirmation on webhook delivery speed (<500ms)",
-                  "Pending GST invoice structure verification"
-                ]).map((risk, idx) => (
-                  <div key={idx} className="flex items-start gap-2 bg-error-container/30 p-2 rounded-lg text-xs text-on-surface">
-                    <span className="material-symbols-outlined text-sm text-error shrink-0 mt-0.5">error</span>
-                    <span>{risk}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT COLUMN: WhatsApp Conversation Feed (span 4) */}
-        <div className="lg:col-span-4 flex flex-col">
-          <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col h-full gap-space-md border border-surface-container">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-2 border-b border-surface-container">
-              <div className="flex items-center gap-space-xs">
-                <span className="material-symbols-outlined text-headline-sm text-secondary">chat</span>
-                <div>
-                  <h2 className="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">Conversation</h2>
-                  <span className="text-xs text-on-surface-variant block">{chatMessages.length} messages indexed</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-1 bg-secondary-container/40 px-2.5 py-0.5 rounded-full text-on-secondary-container text-xs font-semibold">
-                <span className="w-2 h-2 rounded-full bg-secondary"></span>
-                <span>Live Sync</span>
-              </div>
-            </div>
-
-            {/* Chat Box */}
-            <div className="bg-[#efeae2]/30 rounded-xl p-3 flex flex-col gap-2.5 overflow-y-auto max-h-[480px] min-h-[360px] border border-surface-container">
-              <div className="flex justify-center">
-                <span className="text-[11px] bg-surface-container text-on-surface-variant px-3 py-0.5 rounded-full font-medium">
-                  Today
-                </span>
-              </div>
-
-              {chatMessages.map(msg => {
-                const isAgent = msg.sender === 'agent';
+              {stages.map((stage, idx) => {
+                const isActive = idx === currentIndex;
+                const isPast = idx <= currentIndex;
+                
                 return (
-                  <div
-                    key={msg.id}
-                    className={`flex flex-col max-w-[85%] ${isAgent ? 'ml-auto items-end' : 'mr-auto items-start'}`}
+                  <button
+                    key={stage}
+                    onClick={() => updateLeadStage(selectedLead.id, stage)}
+                    className="relative z-10 flex flex-col items-center gap-2 group focus:outline-none"
                   >
-                    <div
-                      className={`p-2.5 rounded-xl text-xs leading-relaxed shadow-sm ${
-                        isAgent
-                          ? 'bg-[#dcf8c6] text-[#075e54] rounded-tr-none'
-                          : 'bg-white text-gray-800 rounded-tl-none border border-gray-100'
-                      }`}
+                    <div 
+                      className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-all duration-300 shadow-sm
+                        ${isActive ? 'bg-apple-blue text-white scale-125 ring-4 ring-apple-blue/20' : 
+                          isPast ? 'bg-apple-blue text-white' : 'bg-white border-2 border-apple-border text-apple-text-secondary'}`}
                     >
-                      <p>{msg.text}</p>
-                      {msg.intentBadge && (
-                        <div className="mt-1 pt-1 border-t border-black/10 flex items-center gap-1 text-[10px] font-semibold text-secondary">
-                          <span className="material-symbols-outlined text-[12px]">verified</span>
-                          <span>{msg.intentBadge}</span>
-                        </div>
-                      )}
+                      {isPast ? <span className="material-symbols-outlined text-[10px]">check</span> : idx + 1}
                     </div>
-                    <span className="text-[10px] text-gray-400 mt-0.5 px-1">
-                      {msg.senderName} • {msg.timestamp}
+                    <span className={`text-[10px] font-semibold mt-1 transition-colors ${isPast ? 'text-apple-text' : 'text-apple-text-secondary'}`}>
+                      {stage}
                     </span>
-                  </div>
+                  </button>
                 );
               })}
             </div>
+          </div>
+          
+        </div>
 
-            {/* Reply Input Form */}
-            <form onSubmit={handleSendMessage} className="flex flex-col gap-2 pt-1">
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  placeholder="Send direct WhatsApp reply..."
-                  value={replyText}
-                  onChange={e => setReplyText(e.target.value)}
-                  className="flex-1 bg-surface-container-low border border-surface-container rounded-xl px-3.5 py-2 text-xs text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-[#075E54] hover:bg-secondary text-white rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors shadow-sm"
+        {/* Right Column: WhatsApp Conversation Feed (span 7) */}
+        <div className="md:col-span-7 flex flex-col h-full apple-card overflow-hidden pb-12 mb-12">
+          
+          {/* Header */}
+          <div className="px-6 py-4 border-b border-apple-border/50 bg-[#fbfbfd] flex flex-col gap-1 shrink-0">
+            <h2 className="text-[18px] font-semibold text-apple-text tracking-tight flex items-center gap-2">
+              <span className="material-symbols-outlined text-[20px] text-apple-blue">chat</span>
+              Conversation Details
+            </h2>
+            <span className="text-[13px] text-apple-text-secondary font-medium">WhatsApp Sync • {chatMessages.length} messages</span>
+          </div>
+
+          {/* Chat Feed */}
+          <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-[#e5ddd5]/10">
+            {chatMessages.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center text-[14px] text-apple-text-secondary">
+                No chat history found for this lead.
+              </div>
+            ) : (
+              chatMessages.map(msg => (
+                <div 
+                  key={msg.id} 
+                  className={`flex flex-col max-w-[75%] ${msg.sender === 'agent' ? 'self-end items-end' : 'self-start items-start'}`}
                 >
-                  <span className="material-symbols-outlined text-sm">send</span>
-                  <span>Send</span>
-                </button>
-              </div>
-              <div className="flex gap-1.5 overflow-x-auto whitespace-nowrap pt-1">
-                {[
-                  "Sending over calendar invite for Tuesday 10 AM.",
-                  "Yes, we guarantee sub-200ms API dispatch SLA.",
-                  "Reviewing the volume discount tier for 150 seats."
-                ].map((quick, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setReplyText(quick)}
-                    className="text-[10px] bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant px-2 py-1 rounded-full border border-surface-container transition-colors flex-shrink-0"
+                  <span className="text-[11px] text-apple-text-secondary mb-1 ml-1 font-medium">{msg.senderName}</span>
+                  <div 
+                    className={`px-4 py-3 rounded-2xl shadow-sm text-[14px] leading-relaxed ${
+                      msg.sender === 'agent' 
+                        ? 'bg-[#dcf8c6] text-[#075e54] rounded-tr-sm border border-[#dcf8c6]' 
+                        : 'bg-white text-apple-text rounded-tl-sm border border-apple-border/50'
+                    }`}
                   >
-                    ⚡ {quick}
-                  </button>
-                ))}
-              </div>
+                    {msg.text}
+                  </div>
+                  <span className="text-[10px] text-apple-text-secondary mt-1 opacity-70">{msg.timestamp}</span>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Chat Input */}
+          <div className="p-4 bg-white border-t border-apple-border/50 shrink-0">
+            <form onSubmit={handleSendMessage} className="relative flex items-center">
+              <input
+                type="text"
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder={`Message ${selectedLead.name}...`}
+                className="w-full bg-[#fbfbfd] border border-apple-border/60 rounded-full pl-5 pr-14 py-3 text-[14px] text-apple-text placeholder:text-apple-text-secondary focus:outline-none focus:ring-2 focus:ring-apple-blue/30"
+              />
+              <button
+                type="submit"
+                disabled={!replyText.trim()}
+                className="absolute right-2 w-9 h-9 bg-apple-blue text-white rounded-full flex items-center justify-center hover:bg-apple-blue/90 transition-colors disabled:opacity-50 disabled:hover:bg-apple-blue"
+              >
+                <span className="material-symbols-outlined text-[18px]">send</span>
+              </button>
             </form>
           </div>
         </div>
+
       </div>
     </div>
   );

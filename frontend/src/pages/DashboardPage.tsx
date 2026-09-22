@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 const DASHBOARD_REFRESH_INTERVAL_MS = Number(import.meta.env.VITE_REFRESH_INTERVAL) || 60 * 60 * 1000;
 
 export const DashboardPage: React.FC = () => {
-  const { leads, navigate, setActiveChatLead, showNotification, fetchDashboardData, syncLocalData, isFetching, lastRefreshed, dashboardMetrics } = useApp();
+  const { leads, navigate, showNotification, fetchDashboardData, syncLocalData, isFetching, lastRefreshed, dashboardMetrics, setSelectedLeadId } = useApp();
 
   useEffect(() => {
     fetchDashboardData();
@@ -141,57 +141,61 @@ export const DashboardPage: React.FC = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-apple-border/50 text-[12px] font-medium text-apple-text-secondary uppercase tracking-wider">
-                  <th className="px-6 py-4 font-medium">Contact</th>
-                  <th className="px-6 py-4 font-medium">Last Interaction</th>
-                  <th className="px-6 py-4 font-medium">Value</th>
-                  <th className="px-6 py-4 font-medium">Priority</th>
-                  <th className="px-6 py-4 font-medium">Score</th>
-                  <th className="px-6 py-4 font-medium text-right">Action</th>
+                  <th className="px-4 py-3 font-medium whitespace-nowrap">Lead ID</th>
+                  <th className="px-4 py-3 font-medium whitespace-nowrap">Contact</th>
+                  <th className="px-4 py-3 font-medium whitespace-nowrap">Activity Timeline</th>
+                  <th className="px-4 py-3 font-medium whitespace-nowrap">Intent</th>
+                  <th className="px-4 py-3 font-medium whitespace-nowrap">Language</th>
+                  <th className="px-4 py-3 font-medium whitespace-nowrap">Urgency</th>
+                  <th className="px-4 py-3 font-medium whitespace-nowrap">Category</th>
+                                    <th className="px-4 py-3 font-medium whitespace-nowrap">Deal Value</th>
+                  <th className="px-4 py-3 font-medium text-right whitespace-nowrap"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-apple-border/50">
                 {leads.slice(0, 5).map((lead) => (
-                  <tr key={lead.id} className="hover:bg-apple-hover/50 transition-colors group">
-                    <td className="px-6 py-4">
+                  <tr key={lead.id} className="hover:bg-apple-hover/50 transition-colors group cursor-pointer" onClick={() => navigate('lead-details', { leadId: lead.id || lead.leadId })}>
+                    <td className="px-4 py-3">
+                      <span className="text-[12px] font-medium text-apple-text-secondary bg-apple-hover px-2 py-1 rounded-md">{lead.leadId || lead.id}</span>
+                    </td>
+                    <td className="px-4 py-3">
                       <div className="flex flex-col">
-                        <span className="text-[14px] font-medium text-apple-text">{lead.name}</span>
-                        <span className="text-[12px] text-apple-text-secondary">{lead.phone}</span>
+                        <span className="text-[13px] font-medium text-apple-text">{lead.name}</span>
+                        <span className="text-[11px] text-apple-text-secondary">{lead.phone || 'N/A'}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 max-w-xs">
+                    <td className="px-4 py-3 min-w-[120px]">
                       <div className="flex flex-col">
-                        <span className="text-[13px] text-apple-text truncate">{lead.lastMessage}</span>
-                        <span className="text-[11px] text-apple-text-secondary">{lead.lastMessageTime}</span>
+                        <span className="text-[12px] text-apple-text">First Contact: {lead.chatTime?.firstMessageAt ? new Date(lead.chatTime.firstMessageAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--'}</span>
+                        <span className="text-[11px] text-apple-text-secondary">Last Interaction: {lead.chatTime?.lastMessageAt ? new Date(lead.chatTime.lastMessageAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--'}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="text-[13px] font-medium text-apple-text">{lead.dealValueFormatted}</span>
+                    <td className="px-4 py-3">
+                      <span className="text-[13px] font-medium text-apple-text">{lead.intent || 'Unknown'}</span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold ${getPriorityColor(lead.priority)}`}>
-                        {lead.priority}
-                      </span>
+                    <td className="px-4 py-3">
+                      <span className="text-[13px] text-apple-text-secondary">{lead.language || 'English'}</span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-12 h-1.5 bg-apple-hover rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-apple-blue rounded-full" 
-                            style={{ width: `${Math.min(100, Math.max(0, lead.score))}%` }}
-                          />
-                        </div>
-                        <span className="text-[12px] font-medium text-apple-text">{lead.score}</span>
-                      </div>
+                    <td className="px-4 py-3">
+                      <span className={`text-[12px] font-medium px-2 py-0.5 rounded-full ${lead.urgency === 'High' || lead.urgency === 'Critical' ? 'bg-apple-red/10 text-apple-red' : lead.urgency === 'Festival based' ? 'bg-apple-blue/10 text-apple-blue' : 'bg-apple-hover text-apple-text-secondary'}`}>{lead.urgency || 'Low'}</span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-4 py-3">
+                      <span className={`text-[12px] font-medium px-2 py-0.5 rounded-full ${lead.category === 'At Risk' ? 'bg-[#ff9500]/10 text-[#ff9500]' : 'bg-apple-green/10 text-apple-green'}`}>{lead.category || 'Safe'}</span>
+                    </td>
+                                        <td className="px-4 py-3">
+                      <span className="text-[13px] font-semibold text-apple-text">{lead.dealValueFormatted}</span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
                       <button 
-                        onClick={() => {
-                          setActiveChatLead(lead);
-                          navigate('all-leads');
-                        }}
-                        className="text-apple-blue font-medium text-[13px] opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => {
+      e.stopPropagation();
+      console.log('Button clicked, navigating to:', lead.id || lead.leadId);
+      navigate('lead-details', { leadId: lead.id || lead.leadId });
+    }}
+                        className="inline-flex items-center gap-1 text-apple-blue font-medium text-[13px] hover:text-apple-blue/80 transition-colors"
                       >
-                        Details
+                        <span>Details</span>
+                        <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
                       </button>
                     </td>
                   </tr>
@@ -199,8 +203,8 @@ export const DashboardPage: React.FC = () => {
                 
                 {leads.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-apple-text-secondary text-[14px]">
-                      No leads analyzed yet. Open WhatsApp to get started.
+                    <td colSpan={9} className="px-6 py-12 text-center text-apple-text-secondary text-[14px]">
+                      No active leads analyzed yet. Sync with WhatsApp to populate your pipeline.
                     </td>
                   </tr>
                 )}

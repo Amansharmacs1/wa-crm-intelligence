@@ -3,7 +3,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { AddLeadModal } from './components/modals/AddLeadModal';
-import { QuickChatModal } from './components/modals/QuickChatModal';
+import { FloatingAssistant } from './components/chat/FloatingAssistant';
 import { Toast } from './components/common/Toast';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/auth/LoginPage';
@@ -69,8 +69,8 @@ const AppContent: React.FC = () => {
 
       {/* Global Interactive Modals & Toast */}
       <AddLeadModal />
-      <QuickChatModal />
       <Toast />
+      <FloatingAssistant />
     </div>
   );
 };

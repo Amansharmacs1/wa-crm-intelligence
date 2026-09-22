@@ -1,8 +1,5 @@
 const { z } = require('zod');
 
-/**
- * Zod schema defining the exact Lead Object structure
- */
 const leadObjectSchema = z.object({
   leadId: z.string().regex(/^LEAD-\d{8}-\d{3,}$/, {
     message: 'leadId must follow the format LEAD-YYYYMMDD-XXX'
@@ -15,19 +12,13 @@ const leadObjectSchema = z.object({
     durationMinutes: z.number().nullable()
   }),
   intent: z.enum([
-    'Buy',
-    'Sell',
     'Site Visit',
-    'Product Enquiry',
-    'Price Enquiry',
-    'Demo Request',
-    'Booking',
-    'Support',
-    'General Enquiry',
-    'Other'
+    'Sell',
+    'Buy',
+    'General Enquiry'
   ]),
   language: z.enum(['Hindi', 'English', 'Hinglish', 'Other']),
-  urgency: z.enum(['Low', 'Medium', 'High', 'Critical']),
+  urgency: z.enum(['Low', 'Medium', 'High', 'Festival based']),
   urgencyReason: z.string(),
   priority: z.enum(['Hot', 'Warm', 'Cold', 'At-Risk']),
   followUpRequired: z.boolean(),

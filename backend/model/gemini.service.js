@@ -159,3 +159,57 @@ Analyze the conversation and return the complete sales evaluation in the require
 module.exports = {
   evaluateConversationWithGemini
 };
+
+/**
+ * Generate a conversational response from Gemini for the dashboard AI assistant
+ */
+async function generateChatResponse({ message, history = [] }) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY is not configured.');
+  }
+
+  const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
+  
+  // Format history for Gemini
+  const contents = history.map(msg => ({
+    role: msg.role === 'user' ? 'user' : 'model',
+    parts: [{ text: msg.content }]
+  }));
+
+  // Add the new user message
+  contents.push({
+    role: 'user',
+    parts: [{ text: message }]
+  });
+
+  const systemInstruction = `You are a helpful, minimalist, intelligent AI assistant built directly into the Wa-CRM dashboard. 
+You act like a polite, knowledgeable companion (similar to ChatGPT on Mac).
+You help the user understand their sales pipeline, suggest WhatsApp strategies, and answer CRM/Sales questions.
+Keep your responses concise, professional, and well-formatted. Do not use heavy markdown, just clean text.`;
+
+  const requestUrl = `${GEMINI_API_BASE_URL}/${model}:generateContent?key=${apiKey}`;
+
+  const response = await fetch(requestUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: systemInstruction }] },
+      contents: contents,
+      generationConfig: {
+        temperature: 0.5,
+      }
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Gemini Chat API returned HTTP ${response.status}: ${errorText.slice(0, 150)}`);
+  }
+
+  const data = await response.json();
+  const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response.";
+  return replyText;
+}
+
+module.exports.generateChatResponse = generateChatResponse;

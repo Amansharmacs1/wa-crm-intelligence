@@ -154,13 +154,13 @@ function normalizeIntent(rawIntent, text = '') {
     return 'Site Visit';
   }
   if (lower.includes('demo') || lowerText.includes('demo') || lowerText.includes('walkthrough')) {
-    return 'Demo Request';
+    return 'Site Visit';
   }
   if (lower.includes('booking') || lower.includes('book') || lowerText.includes('booking') || lowerText.includes('slot book') || lowerText.includes('loi')) {
-    return 'Booking';
+    return 'Site Visit';
   }
   if (lower.includes('price') || lower.includes('pricing') || lower.includes('rate') || lower.includes('cost') || lowerText.includes('price') || lowerText.includes('kimat') || lowerText.includes('keemat')) {
-    return 'Price Enquiry';
+    return 'General Enquiry';
   }
   if (lower.includes('buy') || lower.includes('purchase') || lowerText.includes('buy') || lowerText.includes('khareedna')) {
     return 'Buy';
@@ -169,16 +169,16 @@ function normalizeIntent(rawIntent, text = '') {
     return 'Sell';
   }
   if (lower.includes('product') || lower.includes('brochure') || lower.includes('feature') || lowerText.includes('brochure') || lowerText.includes('floor plan')) {
-    return 'Product Enquiry';
+    return 'General Enquiry';
   }
   if (lower.includes('support') || lowerText.includes('support') || lowerText.includes('issue')) {
-    return 'Support';
+    return 'General Enquiry';
   }
   if (lower.includes('general') || lowerText.includes('general')) {
     return 'General Enquiry';
   }
 
-  return 'Other';
+  return 'General Enquiry';
 }
 
 /**
@@ -205,17 +205,20 @@ function normalizeLanguage(rawLang, text = '') {
  * Normalizes urgency to strict enum value
  */
 function normalizeUrgency(rawUrgency, text = '') {
-  const validUrgencies = ['Low', 'Medium', 'High', 'Critical'];
+  const validUrgencies = ['Low', 'Medium', 'High', 'Festival based'];
   if (validUrgencies.includes(rawUrgency)) return rawUrgency;
 
   const lower = (rawUrgency || '').toLowerCase();
   const lowerText = text.toLowerCase();
 
   if (lower === 'critical' || /\b(immediate|urgent|ab ke ab|aaj hi|today|asap)\b/i.test(lowerText)) {
-    return 'Critical';
-  }
-  if (lower === 'high' || /\b(weekend|saturday|sunday|tomorrow|kal|by friday|by monday|thursday|diwali)\b/i.test(lowerText)) {
     return 'High';
+  }
+  if (lower === 'high' || /\b(weekend|saturday|sunday|tomorrow|kal|by friday|by monday|thursday)\b/i.test(lowerText)) {
+    return 'High';
+  }
+  if (lower === 'festival based' || /\b(diwali|festival|holi|eid|navratri|durga|christmas|fest)\b/i.test(lowerText)) {
+    return 'Festival based';
   }
   if (lower === 'low' || /\b(just browsing|looking around|general enquiry)\b/i.test(lowerText)) {
     return 'Low';
@@ -303,7 +306,7 @@ function evaluateLeadDeterministically(contactName, contactNumber, messages, cha
     score += 25;
     buyingSignals.push('Requested a site visit, demo, or phone consultation');
   }
-  if (/weekend|tomorrow|saturday|sunday|friday|thursday|timeline|diwali|month/i.test(lowerText)) {
+  if (/weekend|tomorrow|saturday|sunday|friday|thursday|timeline|diwali|festival|holi|eid|navratri|durga|christmas|month/i.test(lowerText)) {
     score += 15;
     buyingSignals.push('Mentioned a specific purchase timeline');
   }
@@ -465,7 +468,7 @@ MANDATORY ENUMS (YOU MUST USE ONLY ONE OF THESE EXACT STRINGS):
   * Note: Use "At Risk" when follow-up was missed, customer compares competitors, unresolved objection exists, or purchase timeline is urgent. Use "Safe" otherwise.
 - "leadScore": integer between 0 and 100 based on suggested scoring rules (+15 price, +15 budget, +25 visit, +15 timeline, +20 booking, -10 negative).
 - "estimatedValue": object { "amount": integer or null, "currency": "INR", "displayValue": string (e.g. "₹85 L", "₹4.5 Cr") or null }. NEVER invent value if not mentioned.
-- "summary": 2-3 sentence professional sales summary.
+- "summary": string (Provide a dynamic, highly specific, data-driven executive summary. Highlight important findings, true buying intent, specific risks, key observations, and actionable insights based strictly on the chat. Do not use generic repetitive statements. Be professional, analytical, and concise (3-4 sentences)).
 - "buyingSignals": array of short detected strings.
 - "recommendedAction": practical next step for the salesperson.
 

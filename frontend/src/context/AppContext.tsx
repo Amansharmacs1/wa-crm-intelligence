@@ -115,6 +115,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
           return {
             id: bl.leadId,
+            leadId: bl.leadId,
+            intent: bl.intent,
+            language: bl.language,
+            urgency: bl.urgency,
+            category: bl.category,
+            followUpStatus: bl.followUpStatus,
+            followUpRequired: bl.followUpRequired,
+            chatTime: bl.chatTime,
             name: bl.contactName,
             phone: bl.contactNumber || 'N/A',
             company: 'Unknown',
