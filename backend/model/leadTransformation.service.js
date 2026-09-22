@@ -25,8 +25,8 @@ function generateLeadId(date = new Date()) {
   const currentCount = (dailyCounters.get(dateKey) || 0) + 1;
   dailyCounters.set(dateKey, currentCount);
 
-  const seq = String(currentCount).padStart(3, '0');
-  return `LEAD-${dateKey}-${seq}`;
+  const randomSeq = Math.floor(Math.random() * 90000) + 10000;
+  return `LEAD-${dateKey}-${randomSeq}`; // Randomized to prevent E11000 dup key errors on server restart
 }
 
 /**
