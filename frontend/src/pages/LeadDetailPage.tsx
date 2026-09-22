@@ -68,10 +68,10 @@ export const LeadDetailPage: React.FC = () => {
       </div>
 
       {/* Main Content Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 h-full pb-20">
+      <div className="flex flex-col max-w-3xl mx-auto w-full gap-8 h-full pb-20">
         
         {/* Left Column: Customer Profile & AI Insights (span 5) */}
-        <div className="md:col-span-5 flex flex-col gap-6 overflow-y-auto pr-2 scrollbar-none pb-12">
+        <div className="flex flex-col gap-6 overflow-y-auto pr-2 scrollbar-none pb-12">
           
           {/* Identity Card */}
           <div className="apple-card p-6 flex flex-col gap-6 shrink-0">
@@ -210,67 +210,7 @@ export const LeadDetailPage: React.FC = () => {
           
         </div>
 
-        {/* Right Column: WhatsApp Conversation Feed (span 7) */}
-        <div className="md:col-span-7 flex flex-col h-full apple-card overflow-hidden pb-12 mb-12">
-          
-          {/* Header */}
-          <div className="px-6 py-4 border-b border-apple-border/50 bg-[#fbfbfd] flex flex-col gap-1 shrink-0">
-            <h2 className="text-[18px] font-semibold text-apple-text tracking-tight flex items-center gap-2">
-              <span className="material-symbols-outlined text-[20px] text-apple-blue">chat</span>
-              Conversation Details
-            </h2>
-            <span className="text-[13px] text-apple-text-secondary font-medium">WhatsApp Sync • {chatMessages.length} messages</span>
-          </div>
-
-          {/* Chat Feed */}
-          <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-[#e5ddd5]/10">
-            {chatMessages.length === 0 ? (
-              <div className="flex-1 flex items-center justify-center text-[14px] text-apple-text-secondary">
-                No chat history found for this lead.
-              </div>
-            ) : (
-              chatMessages.map(msg => (
-                <div 
-                  key={msg.id} 
-                  className={`flex flex-col max-w-[75%] ${msg.sender === 'agent' ? 'self-end items-end' : 'self-start items-start'}`}
-                >
-                  <span className="text-[11px] text-apple-text-secondary mb-1 ml-1 font-medium">{msg.senderName}</span>
-                  <div 
-                    className={`px-4 py-3 rounded-2xl shadow-sm text-[14px] leading-relaxed ${
-                      msg.sender === 'agent' 
-                        ? 'bg-[#dcf8c6] text-[#075e54] rounded-tr-sm border border-[#dcf8c6]' 
-                        : 'bg-white text-apple-text rounded-tl-sm border border-apple-border/50'
-                    }`}
-                  >
-                    {msg.text}
-                  </div>
-                  <span className="text-[10px] text-apple-text-secondary mt-1 opacity-70">{msg.timestamp}</span>
-                </div>
-              ))
-            )}
-          </div>
-
-          {/* Chat Input */}
-          <div className="p-4 bg-white border-t border-apple-border/50 shrink-0">
-            <form onSubmit={handleSendMessage} className="relative flex items-center">
-              <input
-                type="text"
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                placeholder={`Message ${selectedLead.name}...`}
-                className="w-full bg-[#fbfbfd] border border-apple-border/60 rounded-full pl-5 pr-14 py-3 text-[14px] text-apple-text placeholder:text-apple-text-secondary focus:outline-none focus:ring-2 focus:ring-apple-blue/30"
-              />
-              <button
-                type="submit"
-                disabled={!replyText.trim()}
-                className="absolute right-2 w-9 h-9 bg-apple-blue text-white rounded-full flex items-center justify-center hover:bg-apple-blue/90 transition-colors disabled:opacity-50 disabled:hover:bg-apple-blue"
-              >
-                <span className="material-symbols-outlined text-[18px]">send</span>
-              </button>
-            </form>
-          </div>
-        </div>
-
+        
       </div>
     </div>
   );
