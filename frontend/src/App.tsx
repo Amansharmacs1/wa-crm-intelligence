@@ -18,6 +18,24 @@ import { SettingsPage } from './pages/SettingsPage';
 const AppContent: React.FC = () => {
   const { currentRoute, isAuthenticated, navigate } = useApp();
 
+  // Dynamic Tab Title
+  React.useEffect(() => {
+    const originalTitle = 'WA-CRM Intelligence';
+    document.title = originalTitle; // Ensure it starts with the correct title
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        document.title = 'We Miss You Come Back';
+      } else {
+        document.title = originalTitle;
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
+
   // If user is ALREADY authenticated and tries to access public pages, send them to dashboard
   React.useEffect(() => {
     if (isAuthenticated && ['landing', 'login', 'signup', 'register'].includes(currentRoute)) {
