@@ -398,6 +398,7 @@ function evaluateLeadDeterministically(contactName, contactNumber, messages, cha
     followUpRequired,
     followUpStatus,
     category,
+      priority,
     leadScore: score,
     estimatedValue,
     summary,
@@ -503,6 +504,7 @@ Analyze the conversation and output JSON.`;
     const followUpStatus = normalizeFollowUpStatus(rawAiResult.followUpStatus, followUpRequired, isLastFromCustomer);
     const leadScore = Math.min(100, Math.max(0, Math.round(Number(rawAiResult.leadScore ?? rawAiResult.score ?? 75))));
     const category = normalizeCategory(rawAiResult.category, followUpStatus, transcript, leadScore);
+    const priority = leadScore >= 75 ? 'Hot' : leadScore >= 50 ? 'Warm' : 'Cold';
 
     let amount = rawAiResult.estimatedValue?.amount ?? (typeof rawAiResult.estimatedValue === 'number' ? rawAiResult.estimatedValue : null);
     if (typeof amount === 'number' && amount <= 0) amount = null;
@@ -533,6 +535,7 @@ Analyze the conversation and output JSON.`;
       followUpRequired,
       followUpStatus,
       category,
+      priority,
       leadScore,
       estimatedValue,
       summary: rawAiResult.summary || `${contactName} is inquiring about ${intent.toLowerCase()}. Lead score is ${leadScore}/100 and classified as ${category}.`,
