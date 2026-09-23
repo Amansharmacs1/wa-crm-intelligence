@@ -1,117 +1,58 @@
 # Wa-CRM Intelligence
 
-Wa-CRM Intelligence is an AI-powered revenue intelligence platform for businesses that conduct sales conversations through WhatsApp. It converts unstructured WhatsApp conversations into structured and actionable sales intelligence.
+Wa-CRM Intelligence is an AI-powered revenue intelligence platform designed specifically for businesses that conduct sales and operations over WhatsApp. It operates seamlessly as a Chrome Extension, converting unstructured WhatsApp Web conversations into structured, actionable sales intelligence and CRM data.
 
-## Phase 1 Scope
+## 🏆 Hackathon Achievement
 
-This phase focuses entirely on building the initial Chrome Extension to prove data extraction capabilities from WhatsApp Web.
+**This project was proudly built during the 36-hour national level hackathon, "Code With Bharat 3.0" by team Nexus Flow.**
 
-The extension is strictly constrained to:
-- Operating only on WhatsApp Web.
-- Reading only the currently active conversation.
-- Requiring an explicit user click to extract data.
-- Converting raw DOM elements into a structured JSON representation.
-- Working entirely locally (no backend or AI integration in this phase).
-- Strictly following privacy guidelines (no session token extraction, no background scraping).
+We are thrilled to announce that **Team Nexus Flow** secured a spot in the **Top 10 among 65+ competing teams!**
 
-## Folder Structure
+**Team Nexus Flow Members:**
+- Aman Sharma
+- Ansh Goyal
+- Akshat Chaudhary
+- Anushka Chopra
+- Vidita Sharma
 
-```
-wa-crm-intelligence/
-├── apps/
-│   └── extension/         # Chrome Extension source code
-│       ├── manifest.json  # Extension manifest (V3)
-│       ├── popup.html     # Extension UI structure
-│       ├── popup.css      # Extension styling
-│       ├── popup.js       # Extension UI logic
-│       ├── content.js     # Content script injected into WhatsApp Web
-│       ├── selectors.js   # Centralized DOM selectors for extraction
-│       └── icons/         # Extension icons
-├── docs/                  # Documentation
-├── package.json           # Monorepo configuration
-└── README.md              # This file
-```
+## 🎯 What problem is it solving?
 
-## How to Load the Extension (Development)
+Many businesses and independent sellers manage a large volume of leads and customer interactions entirely on WhatsApp. However, extracting meaningful data from these conversations is a manual, error-prone, and time-consuming process.
 
-1. Open Google Chrome.
-2. Navigate to `chrome://extensions`.
-3. Enable **Developer mode** (toggle switch in the top right corner).
-4. Click **Load unpacked** in the top left.
-5. Select the `apps/extension` folder inside this repository.
+**Wa-CRM Intelligence solves this by:**
+- **Automating Data Entry:** Eliminating the need to manually copy-paste leads, requirements, or conversation summaries into spreadsheets or CRMs.
+- **Unlocking Hidden Insights:** Analyzing raw chat text to determine lead sentiment, purchase intent, and key requirements.
+- **Improving Response Times:** Suggesting context-aware replies to keep the sales pipeline moving efficiently.
+- **Privacy-First Operations:** Operating entirely locally within your browser and interacting only with the currently active conversation, without scraping background data.
 
-## Testing Steps
+## 🛠️ How it is built
 
-1. Load the extension as described above.
-2. Open [WhatsApp Web](https://web.whatsapp.com/) in a new tab.
-3. Refresh the WhatsApp Web tab to ensure the extension scripts are injected.
-4. Select any active conversation (a chat where messages are visible).
-5. Click on the **Wa-CRM Intelligence** extension icon in your Chrome toolbar.
-6. Observe that the extension detects your active contact and the number of visible messages.
-7. Click **Detect Conversation**.
-8. Verify that the structured JSON representation of the conversation is displayed in the popup.
-9. Try opening the extension on a non-WhatsApp tab, or without a chat selected, to verify error handling.
+The platform is designed as a full-stack application consisting of the following key components:
 
-## Known Limitations
+- **Frontend (Web Dashboard):** Built using React, Vite, Tailwind CSS, and Supabase. It provides a sleek user interface to view and manage extracted leads, analytics, and CRM data.
+- **Chrome Extension:** Built with modern JavaScript (Manifest V3). It injects content scripts directly into WhatsApp Web to securely read the active DOM and extract conversations with a single click.
+- **Backend Server:** A Node.js and Express server that processes the extracted payload, connects to the database, and handles the backend business logic.
+- **AI Engine (Model):** Responsible for analyzing conversation context, assigning lead scores, categorizing intents, and generating suggested smart replies.
 
-- **DOM Volatility**: WhatsApp Web frequently updates its HTML structure and CSS class names. The extraction logic in `selectors.js` relies on specific attributes and roles (like `[role="row"]` and `data-id`). If WhatsApp pushes a major structural update, these selectors may need to be updated.
-- **Visible Messages Only**: In Phase 1, only messages currently rendered in the DOM are extracted. Scrolling up to load older history is not implemented automatically yet.
-- **No Attachments**: Image, video, and document extraction is ignored to comply with Phase 1 privacy rules.
+## 🚀 Getting Started
 
-## Phase 2: Local Backend & Mock Analysis
+*(Developer Instructions)*
 
-In this phase, we added a local Express backend server that receives the extracted conversation from the Chrome extension, validates the payload, and returns structured mock intelligence.
+### Loading the Extension
+1. Go to `chrome://extensions` in Google Chrome.
+2. Enable **Developer mode**.
+3. Click **Load unpacked** and select the extension folder from this repository (`backend/extension`).
 
-### Backend Setup and Installation
-
-1. Navigate to the backend directory:
-   ```bash
-   cd apps/server
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Copy the environment variables:
-   ```bash
-   cp .env.example .env
-   ```
-4. Start the development server (runs on port 5050 by default):
-   ```bash
-   npm run dev
-   ```
-   *Note for macOS users: If port 5050 is occupied by the "AirPlay Receiver", you can either turn off AirPlay Receiver in System Settings > General > AirDrop & Handoff, or change the `PORT` in `.env` and `apps/extension/config.js` to `5001`.*
-
-### Testing the Backend Independently
-
-Verify the backend is healthy:
+### Running the Backend
 ```bash
-curl http://localhost:5050/api/health
+cd backend/backend
+npm install
+npm run dev
 ```
 
-Simulate an analysis request:
+### Running the Frontend
 ```bash
-curl -X POST http://localhost:5050/api/leads/analyze \
-  -H "Content-Type: application/json" \
-  -d '{
-    "contactName": "Rahul Mehta",
-    "source": "whatsapp-web",
-    "messages": [
-      {
-        "sender": "customer",
-        "text": "Can I schedule a site visit?"
-      }
-    ]
-  }'
+cd frontend
+npm install
+npm run dev
 ```
-
-### Testing the Complete Phase 2 Workflow
-
-1. Start the backend server (`npm run dev`).
-2. Reload the Chrome extension: Go to `chrome://extensions`, find Wa-CRM Intelligence, and click the refresh (↻) icon.
-3. Open a conversation in WhatsApp Web and refresh the page.
-4. Open the extension popup. It will now have an **"Analyze This Lead"** button.
-5. Click the button to trigger extraction. The extension will send the data to your local backend.
-6. Observe the mock analysis response (Score, Category, Summary, Intent, Reply).
-7. Test the **Copy Suggested Reply** button.
-8. To test the backend offline error handling, simply stop the backend server (`Ctrl+C`) and try clicking the button again.
